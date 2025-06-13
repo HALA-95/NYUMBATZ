@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Menu, X, User, Heart, Bell, Home, Info, Phone, LogIn, UserPlus } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, Menu, X, User, Heart, Bell, Home, Info, Phone, LogIn, UserPlus, MapPin, Calendar, Users as UsersIcon } from 'lucide-react';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -14,11 +14,18 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [searchLocation, setSearchLocation] = useState('');
+  const [searchCheckIn, setSearchCheckIn] = useState('');
+  const [searchGuests, setSearchGuests] = useState('');
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      onSearch(searchQuery.trim());
+    const combinedQuery = [searchLocation, searchQuery, searchGuests].filter(Boolean).join(' ');
+    if (combinedQuery.trim()) {
+      onSearch(combinedQuery.trim());
+      setIsSearchExpanded(false);
     }
   };
 
@@ -34,8 +41,34 @@ const Header: React.FC<HeaderProps> = ({
 
   const clearSearch = () => {
     setSearchQuery('');
+    setSearchLocation('');
+    setSearchCheckIn('');
+    setSearchGuests('');
+    setIsSearchExpanded(false);
     onSearch(''); // Clear search results
   };
+
+  const handleExpandedSearch = () => {
+    const combinedQuery = [searchLocation, searchQuery, searchGuests].filter(Boolean).join(' ');
+    if (combinedQuery.trim()) {
+      onSearch(combinedQuery.trim());
+      setIsSearchExpanded(false);
+    }
+  };
+
+  // Close expanded search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const navigationLinks = [
     { name: 'Properties', href: '#properties', icon: Home, nameSwahili: 'Mali' },
@@ -71,30 +104,112 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Desktop Search - Large screens only */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="w-full">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
+          <div className="hidden lg:flex flex-1 max-w-2xl mx-8" ref={searchRef}>
+            {!isSearchExpanded ? (
+              // Compact Search Bar
+              <div 
+                onClick={() => setIsSearchExpanded(true)}
+                className="w-full cursor-pointer"
+              >
+                <div className="flex items-center w-full border border-gray-300 rounded-full py-2 px-4 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
+                  <div className="flex-1 flex items-center space-x-3">
+                    <Search className="h-4 w-4 text-gray-400" />
+                    <div className="flex-1">
+                      <span className="text-sm text-gray-500">
+                        {searchQuery || searchLocation || 'Search destinations, prices, property types...'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="bg-teal-600 rounded-full p-2">
+                    <Search className="h-4 w-4 text-white" />
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleInputChange}
-                  placeholder="Search by location, price, or house type..."
-                  className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-full leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                  </button>
-                )}
               </div>
-            </form>
+            ) : (
+              // Expanded Search Bar (Airbnb Style)
+              <div className="w-full">
+                <div className="bg-white border border-gray-300 rounded-2xl shadow-lg p-2">
+                  <div className="grid grid-cols-4 gap-0">
+                    {/* Location */}
+                    <div className="border-r border-gray-200 p-3">
+                      <label className="block text-xs font-semibold text-gray-900 mb-1">Where</label>
+                      <input
+                        type="text"
+                        value={searchLocation}
+                        onChange={(e) => setSearchLocation(e.target.value)}
+                        placeholder="Search destinations"
+                        className="w-full text-sm text-gray-700 placeholder-gray-400 border-none outline-none bg-transparent"
+                      />
+                    </div>
+
+                    {/* Check-in */}
+                    <div className="border-r border-gray-200 p-3">
+                      <label className="block text-xs font-semibold text-gray-900 mb-1">Move in</label>
+                      <input
+                        type="date"
+                        value={searchCheckIn}
+                        onChange={(e) => setSearchCheckIn(e.target.value)}
+                        className="w-full text-sm text-gray-700 border-none outline-none bg-transparent"
+                      />
+                    </div>
+
+                    {/* Property Type */}
+                    <div className="border-r border-gray-200 p-3">
+                      <label className="block text-xs font-semibold text-gray-900 mb-1">Property</label>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={handleInputChange}
+                        placeholder="House, apartment..."
+                        className="w-full text-sm text-gray-700 placeholder-gray-400 border-none outline-none bg-transparent"
+                      />
+                    </div>
+
+                    {/* Guests/Bedrooms */}
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="flex-1">
+                        <label className="block text-xs font-semibold text-gray-900 mb-1">Bedrooms</label>
+                        <input
+                          type="text"
+                          value={searchGuests}
+                          onChange={(e) => setSearchGuests(e.target.value)}
+                          placeholder="Add bedrooms"
+                          className="w-full text-sm text-gray-700 placeholder-gray-400 border-none outline-none bg-transparent"
+                        />
+                      </div>
+                      <button
+                        onClick={handleExpandedSearch}
+                        className="bg-teal-600 hover:bg-teal-700 text-white rounded-full p-3 ml-2 transition-colors duration-200"
+                      >
+                        <Search className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick suggestions */}
+                <div className="mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4">
+                  <div className="text-xs font-semibold text-gray-900 mb-2">Popular searches</div>
+                  <div className="flex flex-wrap gap-2">
+                    {['Dar es Salaam', 'Mwanza', 'Arusha', 'Mbeya', '2 bedrooms', 'Apartment', 'House'].map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        onClick={() => {
+                          if (suggestion.includes('bedroom') || suggestion === 'Apartment' || suggestion === 'House') {
+                            setSearchQuery(suggestion);
+                          } else {
+                            setSearchLocation(suggestion);
+                          }
+                        }}
+                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-700 transition-colors duration-200"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Desktop Authentication & User Actions - Large screens only */}
