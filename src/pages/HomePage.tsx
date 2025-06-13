@@ -4,8 +4,11 @@ import Hero from '../components/Hero';
 import PropertyCard from '../components/PropertyCard';
 import SearchFilters from '../components/SearchFilters';
 import PropertyDetails from '../components/PropertyDetails';
+import FeaturedCarousel from '../components/FeaturedCarousel';
+import Footer from '../components/Footer';
 import { mockProperties } from '../data/mockData';
 import { Property, SearchFilters as SearchFiltersType } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
 
 const HomePage: React.FC = () => {
   const [properties] = useState<Property[]>(mockProperties);
@@ -16,6 +19,8 @@ const HomePage: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'newest' | 'featured'>('featured');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { t, language } = useTranslation();
 
   const applyFilters = (newFilters: SearchFiltersType, query: string = searchQuery) => {
     let filtered = [...properties];
@@ -49,8 +54,9 @@ const HomePage: React.FC = () => {
     }
 
     // Property type filter
-    if (newFilters.propertyType) {
-      filtered = filtered.filter(property => property.propertyType === newFilters.propertyType);
+    if (newFilters.propertyType || newFilters.houseType) {
+      const typeFilter = newFilters.propertyType || newFilters.houseType;
+      filtered = filtered.filter(property => property.propertyType === typeFilter);
     }
 
     // Bedrooms filter
@@ -94,6 +100,7 @@ const HomePage: React.FC = () => {
 
     setFilteredProperties(filtered);
     setFilters(newFilters);
+    setShowSearchResults(true);
   };
 
   const handleSortChange = (newSortBy: typeof sortBy) => {
@@ -108,11 +115,18 @@ const HomePage: React.FC = () => {
 
   const handleHeroSearch = (heroFilters: SearchFiltersType) => {
     applyFilters(heroFilters, searchQuery);
+    // Scroll to results section
+    const resultsSection = document.getElementById('search-results');
+    if (resultsSection) {
+      resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   // Apply filters when sortBy changes
   useEffect(() => {
-    applyFilters(filters, searchQuery);
+    if (showSearchResults) {
+      applyFilters(filters, searchQuery);
+    }
   }, [sortBy]);
 
   if (selectedProperty) {
@@ -128,130 +142,141 @@ const HomePage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <Hero onSearch={handleHeroSearch} />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Results Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {filteredProperties.length} Properties Available
-            </h2>
-            <p className="text-gray-600 mt-1">
-              Mali {filteredProperties.length} zinapatikana Tanzania
-            </p>
-            {searchQuery && (
-              <p className="text-sm text-blue-600 mt-1">
-                Search results for: "{searchQuery}"
+      {/* Featured Properties Carousel */}
+      <FeaturedCarousel 
+        properties={properties} 
+        onPropertyClick={setSelectedProperty}
+      />
+      
+      {/* Search Results Section */}
+      {showSearchResults && (
+        <div id="search-results" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Results Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {filteredProperties.length} {t.propertiesAvailable}
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Mali {filteredProperties.length} zinapatikana Tanzania
               </p>
-            )}
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {/* Sort Dropdown */}
-            <select
-              value={sortBy}
-              onChange={(e) => handleSortChange(e.target.value as typeof sortBy)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="featured">Featured First</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="newest">Newest First</option>
-            </select>
+              {searchQuery && (
+                <p className="text-sm text-blue-600 mt-1">
+                  {t.searchResultsFor} "{searchQuery}"
+                </p>
+              )}
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => handleSortChange(e.target.value as typeof sortBy)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="featured">Featured First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="newest">Newest First</option>
+              </select>
 
-            {/* View Toggle */}
-            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+              {/* View Toggle */}
+              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'} transition-colors`}
+                >
+                  <Grid className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'} transition-colors`}
+                >
+                  <List className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Filters Toggle */}
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'} transition-colors`}
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <Grid className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'} transition-colors`}
-              >
-                <List className="h-5 w-5" />
+                <SlidersHorizontal className="h-5 w-5" />
+                <span>Filters</span>
               </button>
             </div>
-
-            {/* Filters Toggle */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <SlidersHorizontal className="h-5 w-5" />
-              <span>Filters</span>
-            </button>
           </div>
-        </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          {showFilters && (
-            <div className="lg:w-80 flex-shrink-0">
-              <div className="sticky top-24">
-                <SearchFilters
-                  filters={filters}
-                  onFiltersChange={(newFilters) => applyFilters(newFilters, searchQuery)}
-                  onClose={() => setShowFilters(false)}
-                  isOpen={showFilters}
-                />
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Filters Sidebar */}
+            {showFilters && (
+              <div className="lg:w-80 flex-shrink-0">
+                <div className="sticky top-24">
+                  <SearchFilters
+                    filters={filters}
+                    onFiltersChange={(newFilters) => applyFilters(newFilters, searchQuery)}
+                    onClose={() => setShowFilters(false)}
+                    isOpen={showFilters}
+                  />
+                </div>
               </div>
+            )}
+
+            {/* Properties Grid/List */}
+            <div className="flex-1">
+              {filteredProperties.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <svg className="h-24 w-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noPropertiesFound}</h3>
+                  <p className="text-gray-600">
+                    {t.tryAdjusting}
+                  </p>
+                  {searchQuery && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        applyFilters(filters, '');
+                      }}
+                      className="mt-4 text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {t.clearSearch}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className={`grid gap-6 ${
+                  viewMode === 'grid' 
+                    ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
+                    : 'grid-cols-1'
+                }`}>
+                  {filteredProperties.map((property) => (
+                    <PropertyCard
+                      key={property.id}
+                      property={property}
+                      onViewDetails={setSelectedProperty}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Load More Button */}
+          {filteredProperties.length > 0 && (
+            <div className="text-center mt-12">
+              <button className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                {t.loadMore}
+              </button>
             </div>
           )}
-
-          {/* Properties Grid/List */}
-          <div className="flex-1">
-            {filteredProperties.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <svg className="h-24 w-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">No properties found</h3>
-                <p className="text-gray-600">
-                  Try adjusting your filters or search criteria / Jaribu kubadilisha vigezo vyako vya utafutaji
-                </p>
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      applyFilters(filters, '');
-                    }}
-                    className="mt-4 text-blue-600 hover:text-blue-800 underline"
-                  >
-                    Clear search and show all properties
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className={`grid gap-6 ${
-                viewMode === 'grid' 
-                  ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
-                  : 'grid-cols-1'
-              }`}>
-                {filteredProperties.map((property) => (
-                  <PropertyCard
-                    key={property.id}
-                    property={property}
-                    onViewDetails={setSelectedProperty}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
+      )}
 
-        {/* Load More Button */}
-        {filteredProperties.length > 0 && (
-          <div className="text-center mt-12">
-            <button className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-              Load More Properties / Pakia Mali Zaidi
-            </button>
-          </div>
-        )}
-      </div>
+      <Footer language={language} />
     </div>
   );
 };
