@@ -270,7 +270,7 @@ const HomePage: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value as typeof sortBy)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
             >
               <option value="featured">Featured First</option>
               <option value="price-low">Price: Low to High</option>
@@ -278,8 +278,8 @@ const HomePage: React.FC = () => {
               <option value="newest">Newest First</option>
             </select>
 
-            {/* View Toggle */}
-            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+            {/* View Toggle - Hidden on Mobile */}
+            <div className="hidden md:flex border border-gray-300 rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'} transition-colors`}
@@ -297,10 +297,10 @@ const HomePage: React.FC = () => {
             {/* Filters Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
             >
-              <SlidersHorizontal className="h-5 w-5" />
-              <span>Filters</span>
+              <SlidersHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">Filters</span>
             </button>
           </div>
         </div>
@@ -320,7 +320,7 @@ const HomePage: React.FC = () => {
             </div>
           )}
 
-          {/* Properties Grid/List */}
+          {/* Properties Grid/List - Always Grid on Mobile */}
           <div className="flex-1">
             {filteredProperties.length === 0 ? (
               <div className="text-center py-12">
@@ -355,9 +355,8 @@ const HomePage: React.FC = () => {
             ) : (
               <>
                 <div className={`grid gap-6 ${
-                  viewMode === 'grid' 
-                    ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
-                    : 'grid-cols-1'
+                  // Always use grid layout on mobile, respect viewMode on larger screens
+                  'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
                 }`}>
                   {displayedProperties.map((property) => (
                     <PropertyCard
@@ -374,16 +373,16 @@ const HomePage: React.FC = () => {
                     <button 
                       onClick={loadMoreProperties}
                       disabled={isLoading}
-                      className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mx-auto min-w-[200px]"
+                      className="bg-white border border-gray-300 text-gray-700 px-6 sm:px-8 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mx-auto min-w-[180px] sm:min-w-[200px]"
                     >
                       {isLoading ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
-                          <span>Loading...</span>
+                          <span className="text-sm sm:text-base">Loading...</span>
                         </>
                       ) : (
                         <>
-                          <span>Load More Properties</span>
+                          <span className="text-sm sm:text-base">Load More Properties</span>
                           <ChevronDown className="h-4 w-4" />
                         </>
                       )}
