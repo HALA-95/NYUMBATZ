@@ -16,21 +16,59 @@ const HomePage: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'newest' | 'featured'>('featured');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   const applyFilters = (newFilters: SearchFiltersType, query: string = searchQuery) => {
     let filtered = [...properties];
 
-    // Text search filter
+    // Text search filter - enhanced to handle multiple search terms
     if (query.trim()) {
       const searchTerm = query.toLowerCase();
-      filtered = filtered.filter(property => 
-        property.title.toLowerCase().includes(searchTerm) ||
-        property.location.city.toLowerCase().includes(searchTerm) ||
-        property.location.district.toLowerCase().includes(searchTerm) ||
-        property.location.neighborhood?.toLowerCase().includes(searchTerm) ||
-        property.description.toLowerCase().includes(searchTerm) ||
-        property.propertyType.toLowerCase().includes(searchTerm)
-      );
+      const searchTerms = searchTerm.split(' ').filter(term => term.length > 0);
+      
+      filtered = filtered.filter(property => {
+        const searchableText = [
+          property.title,
+          property.location.city,
+          property.location.district,
+          property.location.neighborhood || '',
+          property.description,
+          property.propertyType,
+          property.priceMonthly.toString(),
+          property.bedrooms.toString(),
+          property.bathrooms.toString(),
+          ...property.amenities
+        ].join(' ').toLowerCase();
+
+        // Check if any search term matches
+        return searchTerms.some(term => {
+          // Check for exact matches or partial matches
+          if (searchableText.includes(term)) return true;
+          
+          // Check for price ranges (e.g., "500k", "1m", "2.5m")
+          if (term.includes('k') || term.includes('m')) {
+            const priceValue = parseFloat(term.replace(/[km]/g, ''));
+            const multiplier = term.includes('m') ? 1000000 : 1000;
+            const searchPrice = priceValue * multiplier;
+            const propertyPrice = property.priceMonthly;
+            
+            // Allow for price range matching (±20%)
+            return Math.abs(propertyPrice - searchPrice) <= (searchPrice * 0.2);
+          }
+          
+          // Check for numeric price matches
+          if (!isNaN(Number(term))) {
+            const searchPrice = Number(term);
+            return Math.abs(property.priceMonthly - searchPrice) <= (searchPrice * 0.1);
+          }
+          
+          return false;
+        });
+      });
+      
+      setShowSearchResults(true);
+    } else {
+      setShowSearchResults(false);
     }
 
     // Location filter
@@ -110,6 +148,21 @@ const HomePage: React.FC = () => {
     applyFilters(heroFilters, searchQuery);
   };
 
+  // Listen for search from header (via URL params or global state)
+  useEffect(() => {
+    const handleHeaderSearch = (event: CustomEvent) => {
+      const query = event.detail;
+      handleSearch(query);
+    };
+
+    // Listen for custom search events
+    window.addEventListener('headerSearch', handleHeaderSearch as EventListener);
+    
+    return () => {
+      window.removeEventListener('headerSearch', handleHeaderSearch as EventListener);
+    };
+  }, []);
+
   // Apply filters when sortBy changes
   useEffect(() => {
     applyFilters(filters, searchQuery);
@@ -126,23 +179,48 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Hero onSearch={handleHeroSearch} />
+      {/* Only show Hero if not searching */}
+      {!showSearchResults && <Hero onSearch={handleHeroSearch} />}
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search Results Header */}
+        {showSearchResults && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-blue-900">
+                  Search Results for: "{searchQuery}"
+                </h2>
+                <p className="text-blue-700">
+                  Found {filteredProperties.length} properties matching your search
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setShowSearchResults(false);
+                  applyFilters(filters, '');
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Clear Search
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Results Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {filteredProperties.length} Properties Available
+              {showSearchResults ? 'Search Results' : `${filteredProperties.length} Properties Available`}
             </h2>
             <p className="text-gray-600 mt-1">
-              Mali {filteredProperties.length} zinapatikana Tanzania
+              {showSearchResults 
+                ? `${filteredProperties.length} properties found`
+                : `Mali ${filteredProperties.length} zinapatikana Tanzania`
+              }
             </p>
-            {searchQuery && (
-              <p className="text-sm text-blue-600 mt-1">
-                Search results for: "{searchQuery}"
-              </p>
-            )}
           </div>
           
           <div className="flex items-center space-x-4">
@@ -209,20 +287,31 @@ const HomePage: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">No properties found</h3>
-                <p className="text-gray-600">
-                  Try adjusting your filters or search criteria / Jaribu kubadilisha vigezo vyako vya utafutaji
+                <h3 className="text-xl font-medium text-gray-900 mb-2">
+                  {showSearchResults ? `No properties found for "${searchQuery}"` : 'No properties found'}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  {showSearchResults 
+                    ? 'Try searching with different keywords like location, price, or property type'
+                    : 'Try adjusting your filters or search criteria / Jaribu kubadilisha vigezo vyako vya utafutaji'
+                  }
                 </p>
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      applyFilters(filters, '');
-                    }}
-                    className="mt-4 text-blue-600 hover:text-blue-800 underline"
-                  >
-                    Clear search and show all properties
-                  </button>
+                {showSearchResults && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">
+                      Search examples: "Mbeya", "500000", "apartment", "3 bedrooms", "parking"
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        setShowSearchResults(false);
+                        applyFilters(filters, '');
+                      }}
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Clear search and show all properties
+                    </button>
+                  </div>
                 )}
               </div>
             ) : (
