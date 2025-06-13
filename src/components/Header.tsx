@@ -167,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* LOGO SECTION - Responsive sizing */}
           <div className="flex items-center flex-shrink-0">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 cursor-pointer hover:text-teal-700 transition-colors">
-              {t('header:logo')}
+              Nyumba<span className="text-orange-500">TZ</span>
             </h1>
           </div>
 
@@ -279,6 +279,33 @@ const Header: React.FC<HeaderProps> = ({
                       ))}
                     </div>
                   </div>
+                )}
+              </div>
+            </form>
+          </div>
+
+          {/* TABLET SEARCH - Medium screens */}
+          <div className="hidden md:flex lg:hidden flex-1 max-w-md mx-4" ref={mediumSearchRef}>
+            <form onSubmit={handleSearch} className="w-full">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  placeholder={t('header:search.placeholder')}
+                  className="block w-full pl-9 pr-8 py-2 border border-gray-300 rounded-full leading-5 bg-white placeholder-gray-500 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                  </button>
                 )}
               </div>
             </form>
