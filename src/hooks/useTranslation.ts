@@ -1,9 +1,17 @@
 import { useState } from 'react';
 
+/**
+ * Language type definition for TypeScript support
+ * Supports English (en) and Swahili (sw)
+ */
 export type Language = 'en' | 'sw';
 
+/**
+ * Translations interface defining all translatable strings
+ * Organized by feature/section for better maintainability
+ */
 interface Translations {
-  // Header
+  // Header Navigation
   search: string;
   properties: string;
   about: string;
@@ -12,7 +20,7 @@ interface Translations {
   favorites: string;
   notifications: string;
   
-  // Hero
+  // Hero Section
   heroTitle: string;
   heroSubtitle: string;
   searchProperties: string;
@@ -25,18 +33,18 @@ interface Translations {
   any: string;
   anyPrice: string;
   
-  // Property types
+  // Property Types
   house: string;
   apartment: string;
   studio: string;
   villa: string;
   
-  // Stats
+  // Statistics
   propertiesListed: string;
   citiesCovered: string;
   happyTenants: string;
   
-  // Property details
+  // Property Details
   month: string;
   bathrooms: string;
   availableFrom: string;
@@ -49,7 +57,7 @@ interface Translations {
   callOwner: string;
   sendMessage: string;
   
-  // Search results
+  // Search Results
   propertiesAvailable: string;
   searchResultsFor: string;
   noPropertiesFound: string;
@@ -57,7 +65,7 @@ interface Translations {
   clearSearch: string;
   loadMore: string;
   
-  // Common
+  // Common Actions
   back: string;
   save: string;
   share: string;
@@ -67,9 +75,13 @@ interface Translations {
   close: string;
 }
 
+/**
+ * Complete translations object containing all text in both languages
+ * Organized by language code for easy access
+ */
 const translations: Record<Language, Translations> = {
   en: {
-    // Header
+    // Header Navigation
     search: 'Search',
     properties: 'Properties',
     about: 'About',
@@ -78,7 +90,7 @@ const translations: Record<Language, Translations> = {
     favorites: 'Favorites',
     notifications: 'Notifications',
     
-    // Hero
+    // Hero Section
     heroTitle: 'Find Your Perfect Home in Tanzania',
     heroSubtitle: 'Discover beautiful houses and apartments for rent across Tanzania\'s major cities. Your dream home is just a click away.',
     searchProperties: 'Search Properties',
@@ -91,18 +103,18 @@ const translations: Record<Language, Translations> = {
     any: 'Any',
     anyPrice: 'Any Price',
     
-    // Property types
+    // Property Types
     house: 'House',
     apartment: 'Apartment',
     studio: 'Studio',
     villa: 'Villa',
     
-    // Stats
+    // Statistics
     propertiesListed: 'Properties Listed',
     citiesCovered: 'Cities Covered',
     happyTenants: 'Happy Tenants',
     
-    // Property details
+    // Property Details
     month: 'month',
     bathrooms: 'bathrooms',
     availableFrom: 'Available From',
@@ -115,7 +127,7 @@ const translations: Record<Language, Translations> = {
     callOwner: 'Call Owner',
     sendMessage: 'Send Message',
     
-    // Search results
+    // Search Results
     propertiesAvailable: 'Properties Available',
     searchResultsFor: 'Search results for:',
     noPropertiesFound: 'No properties found',
@@ -123,7 +135,7 @@ const translations: Record<Language, Translations> = {
     clearSearch: 'Clear search and show all properties',
     loadMore: 'Load More Properties',
     
-    // Common
+    // Common Actions
     back: 'Back',
     save: 'Save',
     share: 'Share',
@@ -133,7 +145,7 @@ const translations: Record<Language, Translations> = {
     close: 'Close'
   },
   sw: {
-    // Header
+    // Header Navigation
     search: 'Tafuta',
     properties: 'Mali',
     about: 'Kuhusu',
@@ -142,7 +154,7 @@ const translations: Record<Language, Translations> = {
     favorites: 'Vipendwa',
     notifications: 'Arifa',
     
-    // Hero
+    // Hero Section
     heroTitle: 'Pata Nyumba Yako Bora Tanzania',
     heroSubtitle: 'Gundua nyumba na vyumba vya kupanga nzuri kote Tanzania. Nyumba ya ndoto yako ni mbali ya kubofya tu.',
     searchProperties: 'Tafuta Mali',
@@ -155,18 +167,18 @@ const translations: Record<Language, Translations> = {
     any: 'Yoyote',
     anyPrice: 'Bei Yoyote',
     
-    // Property types
+    // Property Types
     house: 'Nyumba',
     apartment: 'Ghorofa',
     studio: 'Studio',
     villa: 'Villa',
     
-    // Stats
+    // Statistics
     propertiesListed: 'Mali Zilizoorodheshwa',
     citiesCovered: 'Miji Iliyofunikwa',
     happyTenants: 'Wapangaji Wenye Furaha',
     
-    // Property details
+    // Property Details
     month: 'mwezi',
     bathrooms: 'bafu',
     availableFrom: 'Inapatikana Kutoka',
@@ -179,7 +191,7 @@ const translations: Record<Language, Translations> = {
     callOwner: 'Piga Simu Mmiliki',
     sendMessage: 'Tuma Ujumbe',
     
-    // Search results
+    // Search Results
     propertiesAvailable: 'Mali Zinapatikana',
     searchResultsFor: 'Matokeo ya utafutaji kwa:',
     noPropertiesFound: 'Hakuna mali zilizopatikana',
@@ -187,7 +199,7 @@ const translations: Record<Language, Translations> = {
     clearSearch: 'Futa utafutaji na onyesha mali zote',
     loadMore: 'Pakia Mali Zaidi',
     
-    // Common
+    // Common Actions
     back: 'Rudi',
     save: 'Hifadhi',
     share: 'Shiriki',
@@ -198,18 +210,37 @@ const translations: Record<Language, Translations> = {
   }
 };
 
+/**
+ * Custom hook for managing translations and language state
+ * 
+ * Features:
+ * - Language state management with React useState
+ * - Easy access to translated strings via 't' object
+ * - Language switching functionality
+ * - TypeScript support for translation keys
+ * 
+ * @returns Object containing current language, translations, and change function
+ */
 export const useTranslation = () => {
+  // State for current language (defaults to English)
   const [language, setLanguage] = useState<Language>('en');
   
+  // Get translations for current language
   const t = translations[language];
   
+  /**
+   * Function to change the current language
+   * Updates the language state which triggers re-render with new translations
+   * 
+   * @param newLanguage - The language to switch to ('en' or 'sw')
+   */
   const changeLanguage = (newLanguage: Language) => {
     setLanguage(newLanguage);
   };
   
   return {
-    language,
-    t,
-    changeLanguage
+    language,    // Current language code
+    t,          // Translated strings object
+    changeLanguage  // Function to change language
   };
 };
