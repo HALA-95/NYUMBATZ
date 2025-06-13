@@ -56,8 +56,8 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center space-x-8">
+          {/* Desktop Navigation Links - Now visible on medium screens and up */}
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {navigationLinks.map((link) => (
               <a
                 key={link.name}
@@ -65,13 +65,13 @@ const Header: React.FC<HeaderProps> = ({
                 className="flex items-center space-x-1 text-gray-700 hover:text-teal-600 transition-colors duration-200 font-medium group"
               >
                 <link.icon className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
-                <span>{link.name}</span>
+                <span className="text-sm lg:text-base">{link.name}</span>
               </a>
             ))}
           </div>
 
-          {/* Desktop Search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          {/* Desktop Search - Adjusted width for better layout */}
+          <div className="hidden lg:flex flex-1 max-w-sm xl:max-w-md mx-6">
             <form onSubmit={handleSearch} className="w-full">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,8 +81,8 @@ const Header: React.FC<HeaderProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={handleInputChange}
-                  placeholder="Search by location, price, or house type... (e.g., Mbeya, 500000, apartment)"
-                  className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-full leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200"
+                  placeholder="Search by location, price, or house type..."
+                  className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-full leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 text-sm"
                 />
                 {searchQuery && (
                   <button
@@ -97,8 +97,35 @@ const Header: React.FC<HeaderProps> = ({
             </form>
           </div>
 
+          {/* Medium Screen Search - Visible on medium screens only */}
+          <div className="hidden md:flex lg:hidden flex-1 max-w-xs mx-4">
+            <form onSubmit={handleSearch} className="w-full">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  placeholder="Search properties..."
+                  className="block w-full pl-9 pr-9 py-2 border border-gray-300 rounded-full leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    <X className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
           {/* Desktop Authentication & User Actions */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
             {isAuthenticated ? (
               <>
                 <button className="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors duration-200 relative">
@@ -117,17 +144,17 @@ const Header: React.FC<HeaderProps> = ({
                 </div>
               </>
             ) : (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 lg:space-x-3">
                 <button
                   onClick={onAuthClick}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-teal-600 transition-colors duration-200 font-medium"
+                  className="flex items-center space-x-1 lg:space-x-2 text-gray-700 hover:text-teal-600 transition-colors duration-200 font-medium text-sm lg:text-base"
                 >
                   <LogIn className="h-4 w-4" />
                   <span>Sign In</span>
                 </button>
                 <button
                   onClick={onAuthClick}
-                  className="flex items-center space-x-2 bg-teal-600 text-white px-4 py-2 rounded-full hover:bg-teal-700 transition-colors duration-200 font-medium"
+                  className="flex items-center space-x-1 lg:space-x-2 bg-teal-600 text-white px-3 lg:px-4 py-2 rounded-full hover:bg-teal-700 transition-colors duration-200 font-medium text-sm lg:text-base"
                 >
                   <UserPlus className="h-4 w-4" />
                   <span>Sign Up</span>
