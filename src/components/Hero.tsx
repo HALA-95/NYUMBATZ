@@ -10,6 +10,7 @@
  * - Responsive design optimized for all screen sizes
  * - Visual statistics to build trust and credibility
  * - Gradient background for visual appeal
+ * - Full internationalization support with react-i18next
  * 
  * SEARCH FUNCTIONALITY:
  * - Location filtering by major Tanzanian cities
@@ -24,14 +25,22 @@
  * - Desktop: 4-column grid for optimal space usage
  * - Touch-friendly buttons and form elements
  * 
+ * INTERNATIONALIZATION:
+ * - All text content translatable with react-i18next
+ * - Form labels and placeholders in both languages
+ * - Statistics and tips support bilingual display
+ * - Currency formatting respects locale settings
+ * 
  * SCALABILITY NOTES:
  * - Search filters easily extensible
  * - Statistics can be dynamically loaded from API
  * - Form validation can be enhanced with custom rules
  * - Supports A/B testing for different layouts
+ * - Language-specific content can be customized
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, MapPin, Home, Users } from 'lucide-react';
 import { tanzanianCities } from '../data/mockData';
 import { SearchFilters } from '../types';
@@ -48,10 +57,13 @@ interface HeroProps {
 /**
  * HERO COMPONENT IMPLEMENTATION
  * 
- * Main landing section with search functionality and value proposition.
+ * Main landing section with search functionality, value proposition, and internationalization.
  */
 const Hero: React.FC<HeroProps> = ({ onSearch }) => {
   
+  // INTERNATIONALIZATION HOOKS
+  const { t } = useTranslation(['hero', 'common']);
+
   /**
    * SEARCH FILTERS STATE
    * 
@@ -87,16 +99,17 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
       <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="text-center">
           
-          {/* MAIN HEADLINE - Responsive typography */}
+          {/* MAIN HEADLINE - Responsive typography with internationalization */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 leading-tight">
-            Find Your Perfect
-            <span className="block text-teal-600 mt-1 sm:mt-2">Home in Tanzania</span>
+            {t('hero:title.main')}
+            <span className="block text-teal-600 mt-1 sm:mt-2">
+              {t('hero:title.highlight')}
+            </span>
           </h1>
           
-          {/* SUBTITLE - Value proposition */}
+          {/* SUBTITLE - Value proposition with internationalization */}
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 lg:mb-12 max-w-2xl mx-auto leading-relaxed px-2 sm:px-4">
-            Discover beautiful houses and apartments for rent across Tanzania's major cities. 
-            Your dream home is just a click away.
+            {t('hero:subtitle')}
           </p>
 
           {/* SEARCH FORM CONTAINER - Card-style with shadow */}
@@ -109,7 +122,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 {/* LOCATION FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
-                    Location / Eneo
+                    {t('hero:searchForm.location.label')}
                   </label>
                   <div className="relative">
                     {/* Location Icon */}
@@ -121,7 +134,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       onChange={(e) => setSearchFilters({ ...searchFilters, location: e.target.value })}
                       className="pl-9 sm:pl-10 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
                     >
-                      <option value="">All Cities / Miji Yote</option>
+                      <option value="">{t('hero:searchForm.location.allCities')}</option>
                       {tanzanianCities.map(city => (
                         <option key={city} value={city}>{city}</option>
                       ))}
@@ -139,7 +152,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 {/* PROPERTY TYPE FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
-                    Property Type / Aina ya Mali
+                    {t('hero:searchForm.propertyType.label')}
                   </label>
                   <div className="relative">
                     {/* Property Type Icon */}
@@ -151,11 +164,11 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       onChange={(e) => setSearchFilters({ ...searchFilters, houseType: e.target.value })}
                       className="pl-9 sm:pl-10 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
                     >
-                      <option value="">All Types / Aina Zote</option>
-                      <option value="house">House / Nyumba</option>
-                      <option value="apartment">Apartment / Ghorofa</option>
-                      <option value="studio">Studio</option>
-                      <option value="villa">Villa</option>
+                      <option value="">{t('hero:searchForm.propertyType.allTypes')}</option>
+                      <option value="house">{t('hero:searchForm.propertyType.house')}</option>
+                      <option value="apartment">{t('hero:searchForm.propertyType.apartment')}</option>
+                      <option value="studio">{t('hero:searchForm.propertyType.studio')}</option>
+                      <option value="villa">{t('hero:searchForm.propertyType.villa')}</option>
                     </select>
                     
                     {/* Custom Dropdown Arrow */}
@@ -170,7 +183,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 {/* BEDROOMS FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
-                    Bedrooms / Vyumba
+                    {t('hero:searchForm.bedrooms.label')}
                   </label>
                   <div className="relative">
                     {/* Bedrooms Icon */}
@@ -182,12 +195,12 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       onChange={(e) => setSearchFilters({ ...searchFilters, bedrooms: e.target.value ? parseInt(e.target.value) : null })}
                       className="pl-9 sm:pl-10 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
                     >
-                      <option value="">Any / Yoyote</option>
-                      <option value="1">1+ bedroom</option>
-                      <option value="2">2+ bedrooms</option>
-                      <option value="3">3+ bedrooms</option>
-                      <option value="4">4+ bedrooms</option>
-                      <option value="5">5+ bedrooms</option>
+                      <option value="">{t('hero:searchForm.bedrooms.any')}</option>
+                      <option value="1">1+ {t('hero:searchForm.bedrooms.bedroom')}</option>
+                      <option value="2">2+ {t('hero:searchForm.bedrooms.bedrooms')}</option>
+                      <option value="3">3+ {t('hero:searchForm.bedrooms.bedrooms')}</option>
+                      <option value="4">4+ {t('hero:searchForm.bedrooms.bedrooms')}</option>
+                      <option value="5">5+ {t('hero:searchForm.bedrooms.bedrooms')}</option>
                     </select>
                     
                     {/* Custom Dropdown Arrow */}
@@ -202,12 +215,12 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 {/* PRICE RANGE FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
-                    Max Price / Bei ya Juu (TSh)
+                    {t('hero:searchForm.price.label')}
                   </label>
                   <div className="relative">
                     {/* Currency Indicator */}
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm font-medium">
-                      TSh
+                      {t('common:currency.tsh')}
                     </span>
                     
                     {/* Price Range Dropdown */}
@@ -219,7 +232,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       })}
                       className="pl-10 sm:pl-12 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
                     >
-                      <option value={3000000}>Any Price / Bei Yoyote</option>
+                      <option value={3000000}>{t('hero:searchForm.price.anyPrice')}</option>
                       <option value={300000}>300K</option>
                       <option value={500000}>500K</option>
                       <option value={750000}>750K</option>
@@ -240,46 +253,55 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 </div>
               </div>
 
-              {/* SEARCH BUTTON - Call-to-action */}
+              {/* SEARCH BUTTON - Call-to-action with internationalization */}
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-teal-600 to-blue-600 text-white py-3 sm:py-4 px-4 sm:px-6 lg:px-8 rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-semibold text-sm sm:text-base lg:text-lg flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:transform active:translate-y-0"
               >
                 <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span>Search Properties / Tafuta Mali</span>
+                <span>{t('hero:searchForm.searchButton')}</span>
               </button>
 
-              {/* SEARCH TIPS - User guidance */}
+              {/* SEARCH TIPS - User guidance with internationalization */}
               <div className="text-center pt-1 sm:pt-2">
                 <p className="text-xs sm:text-sm text-gray-600 px-2">
-                  Quick tips: Try "Mbeya 500k", "3 bedrooms Dar", or "apartment parking"
+                  {t('hero:searchForm.tips')}
                 </p>
               </div>
             </form>
           </div>
 
-          {/* PLATFORM STATISTICS - Trust building */}
+          {/* PLATFORM STATISTICS - Trust building with internationalization */}
           <div className="mt-8 sm:mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             
             {/* Properties Listed Stat */}
             <div className="text-center">
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 mb-1 sm:mb-2">500+</div>
-              <div className="text-gray-600 text-sm sm:text-base">Properties Listed</div>
-              <div className="text-gray-500 text-xs">Mali Zilizoorodheshwa</div>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 mb-1 sm:mb-2">
+                {t('hero:stats.properties.count')}
+              </div>
+              <div className="text-gray-600 text-sm sm:text-base">
+                {t('hero:stats.properties.label')}
+              </div>
             </div>
             
             {/* Cities Covered Stat */}
             <div className="text-center">
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1 sm:mb-2">10+</div>
-              <div className="text-gray-600 text-sm sm:text-base">Cities Covered</div>
-              <div className="text-gray-500 text-xs">Miji Iliyoshughulikiwa</div>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1 sm:mb-2">
+                {t('hero:stats.cities.count')}
+              </div>
+              <div className="text-gray-600 text-sm sm:text-base">
+                {t('hero:stats.cities.label')}
+              </div>
             </div>
             
             {/* Happy Tenants Stat */}
             <div className="text-center">
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600 mb-1 sm:mb-2">1000+</div>
-              <div className="text-gray-600 text-sm sm:text-base">Happy Tenants</div>
-              <div className="text-gray-500 text-xs">Wapangaji Wenye Furaha</div>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600 mb-1 sm:mb-2">
+                {t('hero:stats.tenants.count')}
+              </div>
+              <div className="text-gray-600 text-sm sm:text-base">
+                {t('hero:stats.tenants.label')}
+              </div>
             </div>
           </div>
         </div>

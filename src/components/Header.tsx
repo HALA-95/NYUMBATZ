@@ -2,7 +2,7 @@
  * HEADER COMPONENT - MAIN NAVIGATION AND SEARCH
  * 
  * This is the primary navigation component that appears on all pages.
- * Provides responsive navigation, search functionality, and user authentication.
+ * Provides responsive navigation, search functionality, user authentication, and language switching.
  * 
  * KEY FEATURES:
  * - Responsive design (mobile-first approach)
@@ -10,6 +10,7 @@
  * - User authentication state management
  * - Hamburger menu for mobile devices
  * - Real-time search with suggestions
+ * - Language switching with react-i18next
  * - Bilingual support (English/Swahili)
  * 
  * RESPONSIVE BREAKPOINTS:
@@ -17,15 +18,24 @@
  * - Tablet: 768px-1024px (medium search, collapsible nav)
  * - Desktop: 1024px+ (full navigation, expanded search)
  * 
+ * INTERNATIONALIZATION:
+ * - All text content is translatable using react-i18next
+ * - Language switcher integrated in desktop and mobile views
+ * - Search placeholders and suggestions support both languages
+ * - Navigation links with bilingual labels
+ * 
  * SCALABILITY NOTES:
  * - Search suggestions can be dynamically loaded from API
  * - Navigation links easily configurable
  * - Authentication state can integrate with any auth provider
- * - Supports multiple languages through props
+ * - Supports multiple languages through i18next
+ * - Language switcher can be extended for more languages
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Menu, X, User, Heart, Bell, Home, Info, Phone, LogIn, UserPlus } from 'lucide-react';
+import LanguageSwitcher from './LanguageSwitcher';
 
 /**
  * HEADER COMPONENT PROPS INTERFACE
@@ -42,13 +52,16 @@ interface HeaderProps {
 /**
  * HEADER COMPONENT IMPLEMENTATION
  * 
- * Main navigation component with responsive design and search functionality.
+ * Main navigation component with responsive design, search functionality, and language switching.
  */
 const Header: React.FC<HeaderProps> = ({ 
   onSearch = () => {}, 
   isAuthenticated = false, 
   onAuthClick = () => {} 
 }) => {
+  // INTERNATIONALIZATION HOOKS
+  const { t } = useTranslation(['header', 'common']);
+
   // COMPONENT STATE MANAGEMENT
   const [isMenuOpen, setIsMenuOpen] = useState(false);           // Mobile menu toggle
   const [searchQuery, setSearchQuery] = useState('');           // Current search input
@@ -124,13 +137,13 @@ const Header: React.FC<HeaderProps> = ({
   /**
    * NAVIGATION LINKS CONFIGURATION
    * 
-   * Centralized navigation structure with bilingual support.
+   * Centralized navigation structure with internationalization support.
    * Easy to modify for different sections or languages.
    */
   const navigationLinks = [
-    { name: 'Properties', href: '#properties', icon: Home, nameSwahili: 'Mali' },
-    { name: 'About', href: '#about', icon: Info, nameSwahili: 'Kuhusu' },
-    { name: 'Contact', href: '#contact', icon: Phone, nameSwahili: 'Wasiliana' }
+    { name: t('header:navigation.properties'), href: '#properties', icon: Home },
+    { name: t('header:navigation.about'), href: '#about', icon: Info },
+    { name: t('header:navigation.contact'), href: '#contact', icon: Phone }
   ];
 
   /**
@@ -138,6 +151,7 @@ const Header: React.FC<HeaderProps> = ({
    * 
    * Predefined search suggestions for better UX.
    * In production, these could be dynamically loaded based on popular searches.
+   * Supports both English and Swahili terms.
    */
   const searchSuggestions = [
     'Dar es Salaam', 'Mwanza', 'Arusha', 'Mbeya', 
@@ -153,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* LOGO SECTION - Responsive sizing */}
           <div className="flex items-center flex-shrink-0">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 cursor-pointer hover:text-teal-700 transition-colors">
-              Nyumba<span className="text-orange-500">TZ</span>
+              {t('header:logo')}
             </h1>
           </div>
 
@@ -203,8 +217,8 @@ const Header: React.FC<HeaderProps> = ({
                     onChange={handleInputChange}
                     onFocus={() => setIsSearchExpanded(true)}
                     placeholder={isSearchExpanded 
-                      ? "Search by location, price, property type, amenities..." 
-                      : "Search properties..."
+                      ? t('header:search.expandedPlaceholder')
+                      : t('header:search.placeholder')
                     }
                     className={`block w-full bg-transparent outline-none transition-all duration-300 ${
                       isSearchExpanded 
@@ -246,7 +260,9 @@ const Header: React.FC<HeaderProps> = ({
                 {/* SEARCH SUGGESTIONS DROPDOWN */}
                 {isSearchExpanded && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
-                    <div className="text-xs font-semibold text-gray-900 mb-2">Popular searches</div>
+                    <div className="text-xs font-semibold text-gray-900 mb-2">
+                      {t('header:search.popularSearches')}
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {searchSuggestions.map((suggestion) => (
                         <button
@@ -268,14 +284,11 @@ const Header: React.FC<HeaderProps> = ({
             </form>
           </div>
 
-          {/* TABLET SEARCH - Medium screens */}
-          <div className="hidden md:flex lg:hidden flex-1 max-w-md mx-4" ref={mediumSearchRef}>
-            {/* Similar structure to desktop search but optimized for tablet */}
-            {/* Implementation details omitted for brevity */}
-          </div>
-
-          {/* DESKTOP USER ACTIONS - Authentication and user menu */}
+          {/* DESKTOP USER ACTIONS - Authentication, language switcher, and user menu */}
           <div className="hidden lg:flex items-center space-x-3 xl:space-x-4">
+            {/* Language Switcher */}
+            <LanguageSwitcher variant="dropdown" size="md" showLabel={false} />
+
             {isAuthenticated ? (
               // AUTHENTICATED USER MENU
               <>
@@ -308,7 +321,7 @@ const Header: React.FC<HeaderProps> = ({
                   className="flex items-center space-x-2 text-gray-700 hover:text-teal-600 transition-colors duration-200 font-medium text-sm xl:text-base"
                 >
                   <LogIn className="h-4 w-4" />
-                  <span>Sign In</span>
+                  <span>{t('header:auth.signIn')}</span>
                 </button>
                 
                 {/* Sign Up Button */}
@@ -317,7 +330,7 @@ const Header: React.FC<HeaderProps> = ({
                   className="flex items-center space-x-2 bg-teal-600 text-white px-3 xl:px-4 py-2 rounded-full hover:bg-teal-700 transition-colors duration-200 font-medium text-sm xl:text-base"
                 >
                   <UserPlus className="h-4 w-4" />
-                  <span>Sign Up</span>
+                  <span>{t('header:auth.signUp')}</span>
                 </button>
               </div>
             )}
@@ -328,6 +341,7 @@ const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-md text-gray-600 hover:text-teal-600 hover:bg-gray-100 transition-colors duration-200"
+              aria-label={isMenuOpen ? t('header:mobile.close') : t('header:mobile.menu')}
             >
               {isMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
             </button>
@@ -345,7 +359,7 @@ const Header: React.FC<HeaderProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={handleInputChange}
-                placeholder="Search properties... (location, price, type)"
+                placeholder={t('header:search.placeholder')}
                 className="block w-full pl-9 sm:pl-10 pr-8 sm:pr-10 py-2.5 sm:py-3 border border-gray-300 rounded-full leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 text-sm sm:text-base"
               />
               {searchQuery && (
@@ -377,12 +391,14 @@ const Header: React.FC<HeaderProps> = ({
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <link.icon className="h-5 w-5" />
-                  <div>
-                    <span className="font-medium text-sm sm:text-base">{link.name}</span>
-                    <span className="text-xs sm:text-sm text-gray-500 ml-2">({link.nameSwahili})</span>
-                  </div>
+                  <span className="font-medium text-sm sm:text-base">{link.name}</span>
                 </a>
               ))}
+            </div>
+
+            {/* MOBILE LANGUAGE SWITCHER */}
+            <div className="mb-4 px-3">
+              <LanguageSwitcher variant="dropdown" size="md" showLabel={true} />
             </div>
 
             {/* MOBILE USER SECTION */}
@@ -406,7 +422,7 @@ const Header: React.FC<HeaderProps> = ({
                   className="flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                 >
                   <Heart className="h-5 w-5" />
-                  <span className="text-sm sm:text-base">Favorites</span>
+                  <span className="text-sm sm:text-base">{t('header:user.favorites')}</span>
                   <span className="ml-auto bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">3</span>
                 </a>
                 
@@ -415,14 +431,14 @@ const Header: React.FC<HeaderProps> = ({
                   className="flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                 >
                   <Bell className="h-5 w-5" />
-                  <span className="text-sm sm:text-base">Notifications</span>
+                  <span className="text-sm sm:text-base">{t('header:user.notifications')}</span>
                   <span className="ml-auto bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">2</span>
                 </a>
                 
                 {/* Sign Out Button */}
                 <button className="w-full text-left flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200">
                   <LogIn className="h-5 w-5 rotate-180" />
-                  <span className="text-sm sm:text-base">Sign Out</span>
+                  <span className="text-sm sm:text-base">{t('header:auth.signOut')}</span>
                 </button>
               </>
             ) : (
@@ -437,7 +453,7 @@ const Header: React.FC<HeaderProps> = ({
                   className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors duration-200 font-medium text-sm sm:text-base"
                 >
                   <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>Sign In</span>
+                  <span>{t('header:auth.signIn')}</span>
                 </button>
                 
                 {/* Sign Up Button */}
@@ -449,7 +465,7 @@ const Header: React.FC<HeaderProps> = ({
                   className="w-full flex items-center justify-center space-x-2 bg-teal-600 text-white px-4 py-3 rounded-md hover:bg-teal-700 transition-colors duration-200 font-medium text-sm sm:text-base"
                 >
                   <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>Sign Up</span>
+                  <span>{t('header:auth.signUp')}</span>
                 </button>
               </div>
             )}

@@ -9,6 +9,7 @@
  * - Root component mounting
  * - Development mode configuration
  * - CSS imports and global styles
+ * - Internationalization setup
  * 
  * PRODUCTION CONSIDERATIONS:
  * - StrictMode helps catch potential issues in development
@@ -28,11 +29,18 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';  // Global styles including Tailwind CSS
 
+// INTERNATIONALIZATION SETUP
+// Import i18n configuration to initialize translations
+import './i18n';
+
 /**
  * APPLICATION INITIALIZATION
  * 
  * Creates the React root and renders the main App component.
  * StrictMode helps identify potential problems in development.
+ * 
+ * The i18n import above ensures that internationalization is set up
+ * before the app renders, enabling immediate translation support.
  */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -66,4 +74,8 @@ createRoot(document.getElementById('root')!).render(
  *    if ('serviceWorker' in navigator) {
  *      navigator.serviceWorker.register('/sw.js');
  *    }
+ * 
+ * 6. Language Detection Enhancement:
+ *    import { detectUserLanguage } from './utils/language';
+ *    detectUserLanguage();
  */
