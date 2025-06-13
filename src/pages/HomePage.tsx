@@ -10,57 +10,22 @@ import { mockProperties } from '../data/mockData';
 import { Property, SearchFilters as SearchFiltersType } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 
-/**
- * HomePage Component - Main landing page for the NyumbaTZ application
- * 
- * Features:
- * - Hero section with search functionality
- * - Featured properties carousel
- * - Property search and filtering system
- * - Grid/list view toggle for property display
- * - Sorting options (price, date, featured)
- * - Property details modal/page
- * - Responsive design for all devices
- * - Bilingual support (English/Swahili)
- * - Search results with pagination
- * 
- * State Management:
- * - Properties data and filtered results
- * - Search filters and query
- * - View mode and sorting preferences
- * - Selected property for details view
- */
 const HomePage: React.FC = () => {
-  // Properties data state
   const [properties] = useState<Property[]>(mockProperties);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(mockProperties);
-  
-  // Search and filter state
   const [filters, setFilters] = useState<SearchFiltersType>({});
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  
-  // UI state
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'newest' | 'featured'>('featured');
-  
-  // Translation hook for bilingual support
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const { t, language } = useTranslation();
 
-  /**
-   * Apply filters to properties based on search criteria
-   * Handles text search, location, price range, property type, bedrooms, bathrooms, and amenities
-   * Also applies sorting based on current sort preference
-   * 
-   * @param newFilters - Filter criteria to apply
-   * @param query - Text search query (defaults to current searchQuery)
-   */
   const applyFilters = (newFilters: SearchFiltersType, query: string = searchQuery) => {
     let filtered = [...properties];
 
-    // Text search filter - searches across multiple property fields
+    // Text search filter
     if (query.trim()) {
       const searchTerm = query.toLowerCase();
       filtered = filtered.filter(property => 
@@ -73,14 +38,14 @@ const HomePage: React.FC = () => {
       );
     }
 
-    // Location filter - matches city names
+    // Location filter
     if (newFilters.location) {
       filtered = filtered.filter(property => 
         property.location.city.toLowerCase().includes(newFilters.location!.toLowerCase())
       );
     }
 
-    // Price range filters
+    // Price range filter
     if (newFilters.priceMin) {
       filtered = filtered.filter(property => property.priceMonthly >= newFilters.priceMin!);
     }
@@ -88,23 +53,23 @@ const HomePage: React.FC = () => {
       filtered = filtered.filter(property => property.priceMonthly <= newFilters.priceMax!);
     }
 
-    // Property type filter (supports both propertyType and legacy houseType)
+    // Property type filter
     if (newFilters.propertyType || newFilters.houseType) {
       const typeFilter = newFilters.propertyType || newFilters.houseType;
       filtered = filtered.filter(property => property.propertyType === typeFilter);
     }
 
-    // Bedrooms filter - minimum number of bedrooms
+    // Bedrooms filter
     if (newFilters.bedrooms) {
       filtered = filtered.filter(property => property.bedrooms >= newFilters.bedrooms!);
     }
 
-    // Bathrooms filter - minimum number of bathrooms
+    // Bathrooms filter
     if (newFilters.bathrooms) {
       filtered = filtered.filter(property => property.bathrooms >= newFilters.bathrooms!);
     }
 
-    // Amenities filter - property must have all selected amenities
+    // Amenities filter
     if (newFilters.amenities && newFilters.amenities.length > 0) {
       filtered = filtered.filter(property => 
         newFilters.amenities!.every(amenity => 
@@ -113,7 +78,7 @@ const HomePage: React.FC = () => {
       );
     }
 
-    // Apply sorting based on current sort preference
+    // Sort properties
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.priceMonthly - b.priceMonthly);
@@ -133,60 +98,37 @@ const HomePage: React.FC = () => {
         break;
     }
 
-    // Update state with filtered results
     setFilteredProperties(filtered);
     setFilters(newFilters);
     setShowSearchResults(true);
   };
 
-  /**
-   * Handle sort option change
-   * Updates sort preference and re-applies filters
-   * 
-   * @param newSortBy - New sorting option
-   */
   const handleSortChange = (newSortBy: typeof sortBy) => {
     setSortBy(newSortBy);
     applyFilters(filters, searchQuery);
   };
 
-  /**
-   * Handle search query from header search bar
-   * Updates search query and applies filters
-   * 
-   * @param query - Search query string
-   */
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     applyFilters(filters, query);
   };
 
-  /**
-   * Handle search from hero section
-   * Applies hero filters and scrolls to results section
-   * 
-   * @param heroFilters - Filter criteria from hero search form
-   */
   const handleHeroSearch = (heroFilters: SearchFiltersType) => {
     applyFilters(heroFilters, searchQuery);
-    // Smooth scroll to results section
+    // Scroll to results section
     const resultsSection = document.getElementById('search-results');
     if (resultsSection) {
       resultsSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  /**
-   * Effect to re-apply filters when sort option changes
-   * Only runs when search results are visible
-   */
+  // Apply filters when sortBy changes
   useEffect(() => {
     if (showSearchResults) {
       applyFilters(filters, searchQuery);
     }
   }, [sortBy]);
 
-  // If a property is selected, show property details view
   if (selectedProperty) {
     return (
       <PropertyDetails
@@ -198,7 +140,6 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section with Search */}
       <Hero onSearch={handleHeroSearch} />
       
       {/* Featured Properties Carousel */}
@@ -207,21 +148,18 @@ const HomePage: React.FC = () => {
         onPropertyClick={setSelectedProperty}
       />
       
-      {/* Search Results Section - Only visible after search */}
+      {/* Search Results Section */}
       {showSearchResults && (
         <div id="search-results" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Results Header with Count and Controls */}
+          {/* Results Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
             <div>
-              {/* Results Count */}
               <h2 className="text-2xl font-bold text-gray-900">
                 {filteredProperties.length} {t.propertiesAvailable}
               </h2>
-              {/* Swahili Translation */}
               <p className="text-gray-600 mt-1">
                 Mali {filteredProperties.length} zinapatikana Tanzania
               </p>
-              {/* Search Query Display */}
               {searchQuery && (
                 <p className="text-sm text-blue-600 mt-1">
                   {t.searchResultsFor} "{searchQuery}"
@@ -229,7 +167,6 @@ const HomePage: React.FC = () => {
               )}
             </div>
             
-            {/* Controls Section */}
             <div className="flex items-center space-x-4">
               {/* Sort Dropdown */}
               <select
@@ -243,7 +180,7 @@ const HomePage: React.FC = () => {
                 <option value="newest">Newest First</option>
               </select>
 
-              {/* View Mode Toggle (Grid/List) */}
+              {/* View Toggle */}
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
@@ -259,7 +196,7 @@ const HomePage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Filters Toggle Button */}
+              {/* Filters Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -270,9 +207,8 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Main Content Area */}
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar - Collapsible */}
+            {/* Filters Sidebar */}
             {showFilters && (
               <div className="lg:w-80 flex-shrink-0">
                 <div className="sticky top-24">
@@ -286,13 +222,11 @@ const HomePage: React.FC = () => {
               </div>
             )}
 
-            {/* Properties Display Area */}
+            {/* Properties Grid/List */}
             <div className="flex-1">
-              {/* No Results State */}
               {filteredProperties.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-gray-400 mb-4">
-                    {/* No Results Icon */}
                     <svg className="h-24 w-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
@@ -301,7 +235,6 @@ const HomePage: React.FC = () => {
                   <p className="text-gray-600">
                     {t.tryAdjusting}
                   </p>
-                  {/* Clear Search Button */}
                   {searchQuery && (
                     <button
                       onClick={() => {
@@ -315,7 +248,6 @@ const HomePage: React.FC = () => {
                   )}
                 </div>
               ) : (
-                /* Properties Grid/List Display */
                 <div className={`grid gap-6 ${
                   viewMode === 'grid' 
                     ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
@@ -333,7 +265,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Load More Button - For pagination */}
+          {/* Load More Button */}
           {filteredProperties.length > 0 && (
             <div className="text-center mt-12">
               <button className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
@@ -344,7 +276,6 @@ const HomePage: React.FC = () => {
         </div>
       )}
 
-      {/* Footer Section */}
       <Footer language={language} />
     </div>
   );

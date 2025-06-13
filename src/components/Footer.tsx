@@ -10,30 +10,11 @@ import {
   Heart
 } from 'lucide-react';
 
-/**
- * Footer Component - Comprehensive site footer with multiple sections
- * 
- * Features:
- * - Brand section with social media links
- * - Quick navigation links
- * - Popular locations in Tanzania
- * - Contact information
- * - Newsletter subscription
- * - Legal links (privacy, terms, cookies)
- * - Bilingual support (English/Swahili)
- * - Responsive design with proper spacing
- * 
- * @param language - Current language setting ('en' or 'sw')
- */
 interface FooterProps {
   language?: 'en' | 'sw';
 }
 
 const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
-  /**
-   * Translation object containing all footer text in both languages
-   * Organized by sections for easy maintenance
-   */
   const translations = {
     en: {
       tagline: "Find Your Perfect Home in Tanzania",
@@ -85,13 +66,8 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
     }
   };
 
-  // Get translations for current language
   const t = translations[language];
 
-  /**
-   * Popular locations in Tanzania for quick navigation
-   * These are the major cities where properties are available
-   */
   const popularLocations = [
     'Dar es Salaam',
     'Mwanza',
@@ -104,28 +80,22 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Main Footer Content Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
-          {/* Brand Section - Logo, tagline, and social media */}
+          {/* Brand Section */}
           <div className="lg:col-span-1">
-            {/* Brand Logo */}
             <div className="flex items-center mb-4">
               <h3 className="text-2xl font-bold text-teal-400">
                 Nyumba<span className="text-orange-400">TZ</span>
               </h3>
             </div>
-            
-            {/* Brand Tagline */}
             <p className="text-gray-300 mb-6 leading-relaxed">
               {t.tagline}
             </p>
             
-            {/* Social Media Links Section */}
+            {/* Social Media Links */}
             <div>
               <h4 className="text-lg font-semibold mb-4">{t.followUs}</h4>
               <div className="flex space-x-4">
-                {/* Facebook Link */}
                 <a 
                   href="#" 
                   className="bg-gray-800 p-3 rounded-full hover:bg-blue-600 transition-colors duration-200"
@@ -133,7 +103,6 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
                 >
                   <Facebook className="h-5 w-5" />
                 </a>
-                {/* Twitter Link */}
                 <a 
                   href="#" 
                   className="bg-gray-800 p-3 rounded-full hover:bg-blue-400 transition-colors duration-200"
@@ -141,7 +110,6 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
                 >
                   <Twitter className="h-5 w-5" />
                 </a>
-                {/* Instagram Link */}
                 <a 
                   href="#" 
                   className="bg-gray-800 p-3 rounded-full hover:bg-pink-600 transition-colors duration-200"
@@ -149,7 +117,6 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
                 >
                   <Instagram className="h-5 w-5" />
                 </a>
-                {/* LinkedIn Link */}
                 <a 
                   href="#" 
                   className="bg-gray-800 p-3 rounded-full hover:bg-blue-700 transition-colors duration-200"
@@ -161,9 +128,8 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
             </div>
           </div>
 
-          {/* Quick Links Section - Navigation and legal links */}
+          {/* Quick Links */}
           <div>
-            {/* Main Navigation Links */}
             <h4 className="text-lg font-semibold mb-4">{t.quickLinks}</h4>
             <ul className="space-y-3">
               <li>
@@ -188,7 +154,6 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
               </li>
             </ul>
 
-            {/* Legal Links Section */}
             <h4 className="text-lg font-semibold mb-4 mt-8">{t.legal}</h4>
             <ul className="space-y-3">
               <li>
@@ -209,11 +174,10 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
             </ul>
           </div>
 
-          {/* Popular Locations Section - Major Tanzanian cities */}
+          {/* Popular Locations */}
           <div>
             <h4 className="text-lg font-semibold mb-4">{t.locations}</h4>
             <ul className="space-y-3">
-              {/* Map through popular locations array */}
               {popularLocations.map((location) => (
                 <li key={location}>
                   <a href="#" className="text-gray-300 hover:text-teal-400 transition-colors duration-200">
@@ -224,12 +188,10 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
             </ul>
           </div>
 
-          {/* Contact Information and Newsletter Section */}
+          {/* Contact & Newsletter */}
           <div>
-            {/* Contact Information */}
             <h4 className="text-lg font-semibold mb-4">{t.contactInfo}</h4>
             <div className="space-y-4 mb-8">
-              {/* Email Contact */}
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-teal-400 mr-3" />
                 <div>
@@ -238,7 +200,6 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
                 </div>
               </div>
               
-              {/* Phone Contact */}
               <div className="flex items-center">
                 <Phone className="h-5 w-5 text-teal-400 mr-3" />
                 <div>
@@ -247,7 +208,6 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
                 </div>
               </div>
               
-              {/* Physical Address */}
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 text-teal-400 mr-3 mt-1" />
                 <div>
@@ -259,13 +219,12 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
               </div>
             </div>
 
-            {/* Newsletter Subscription Section */}
+            {/* Newsletter Signup */}
             <div>
               <h4 className="text-lg font-semibold mb-4">{t.newsletter}</h4>
               <p className="text-gray-300 text-sm mb-4">
                 {t.newsletterText}
               </p>
-              {/* Newsletter Subscription Form */}
               <div className="flex">
                 <input
                   type="email"
@@ -280,14 +239,12 @@ const Footer: React.FC<FooterProps> = ({ language = 'en' }) => {
           </div>
         </div>
 
-        {/* Bottom Bar - Copyright and attribution */}
+        {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            {/* Copyright Notice */}
             <div className="text-gray-400 text-sm mb-4 md:mb-0">
               © 2024 NyumbaTZ. {t.copyright}
             </div>
-            {/* Attribution with heart icon */}
             <div className="flex items-center text-gray-400 text-sm">
               <span>{t.madeWith}</span>
               <Heart className="h-4 w-4 text-red-500 mx-2 fill-current" />

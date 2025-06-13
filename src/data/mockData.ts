@@ -1,19 +1,5 @@
 import { Property, User, ViewingRequest, Payment } from '../types';
 
-/**
- * Mock Data for NyumbaTZ House Rental System
- * 
- * This file contains all the sample data used throughout the application
- * including properties, users, viewing requests, and payment records.
- * 
- * Data is organized by type and includes comprehensive examples
- * representing the Tanzanian property rental market.
- */
-
-/**
- * List of major Tanzanian cities where properties are available
- * Used in search filters and location dropdowns
- */
 export const tanzanianCities = [
   'Dar es Salaam',
   'Mwanza',
@@ -27,10 +13,6 @@ export const tanzanianCities = [
   'Mtwara'
 ];
 
-/**
- * Property types available on the platform
- * Includes both English and Swahili translations
- */
 export const propertyTypes = [
   { value: 'house', label: 'Nyumba (House)' },
   { value: 'apartment', label: 'Ghorofa (Apartment)' },
@@ -38,10 +20,6 @@ export const propertyTypes = [
   { value: 'villa', label: 'Villa' }
 ];
 
-/**
- * Available amenities for properties
- * Common features that tenants look for in rental properties
- */
 export const amenities = [
   'Parking',
   'Security',
@@ -57,11 +35,6 @@ export const amenities = [
   'Furnished'
 ];
 
-/**
- * Mock Properties Data
- * Comprehensive list of sample properties across different Tanzanian cities
- * Includes various property types, price ranges, and amenities
- */
 export const mockProperties: Property[] = [
   {
     id: '1',
@@ -89,7 +62,7 @@ export const mockProperties: Property[] = [
     status: 'available',
     createdDate: '2024-01-15',
     updatedDate: '2024-01-15',
-    featured: true // Featured property for carousel display
+    featured: true
   },
   {
     id: '2',
@@ -223,14 +196,169 @@ export const mockProperties: Property[] = [
     createdDate: '2024-01-03',
     updatedDate: '2024-01-03'
   },
-  // Additional properties for comprehensive testing...
-  // (Additional properties with detailed comments would continue here)
+  // Additional Mbeya Properties
+  {
+    id: '7',
+    ownerId: 'owner7',
+    title: 'Family House in Mbeya Highlands',
+    description: 'Spacious 3-bedroom house in the cool highlands of Mbeya. Perfect for families with children. Features a large garden and mountain views.',
+    priceMonthly: 450000,
+    location: {
+      address: 'Mbeya Highlands',
+      city: 'Mbeya',
+      district: 'Mbeya Rural',
+      neighborhood: 'Highlands',
+      latitude: -8.8953,
+      longitude: 33.4456
+    },
+    bedrooms: 3,
+    bathrooms: 2,
+    propertyType: 'house',
+    amenities: ['Parking', 'Security', 'Water Tank', 'Garden', 'Internet'],
+    images: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg',
+      'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg',
+      'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg'
+    ],
+    status: 'available',
+    createdDate: '2024-01-18',
+    updatedDate: '2024-01-18'
+  },
+  {
+    id: '8',
+    ownerId: 'owner8',
+    title: 'Affordable Apartment in Mbeya Town',
+    description: 'Well-located 2-bedroom apartment in the heart of Mbeya town. Close to markets, schools, and public transport.',
+    priceMonthly: 320000,
+    location: {
+      address: 'Mbeya Town Center',
+      city: 'Mbeya',
+      district: 'Mbeya Urban',
+      neighborhood: 'Town Center',
+      latitude: -8.9094,
+      longitude: 33.4607
+    },
+    bedrooms: 2,
+    bathrooms: 1,
+    propertyType: 'apartment',
+    amenities: ['Security', 'Water Tank', 'Internet', 'Parking'],
+    images: [
+      'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg',
+      'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg'
+    ],
+    status: 'available',
+    createdDate: '2024-01-20',
+    updatedDate: '2024-01-20'
+  },
+  {
+    id: '9',
+    ownerId: 'owner9',
+    title: 'Executive Villa in Mbeya Peak',
+    description: 'Luxury 4-bedroom villa with stunning views of Mbeya Peak. Features modern amenities, spacious rooms, and a beautiful garden.',
+    priceMonthly: 750000,
+    location: {
+      address: 'Mbeya Peak Area',
+      city: 'Mbeya',
+      district: 'Mbeya Urban',
+      neighborhood: 'Peak View',
+      latitude: -8.8876,
+      longitude: 33.4523
+    },
+    bedrooms: 4,
+    bathrooms: 3,
+    propertyType: 'villa',
+    amenities: ['Parking', 'Security', 'Generator', 'Water Tank', 'Garden', 'Air Conditioning', 'Internet', 'Swimming Pool'],
+    images: [
+      'https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg',
+      'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg',
+      'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg'
+    ],
+    status: 'available',
+    createdDate: '2024-01-22',
+    updatedDate: '2024-01-22',
+    featured: true
+  },
+  {
+    id: '10',
+    ownerId: 'owner10',
+    title: 'Student Hostel in Mbeya University Area',
+    description: 'Affordable accommodation near Mbeya University of Science and Technology. Perfect for students with shared facilities.',
+    priceMonthly: 180000,
+    location: {
+      address: 'University Area',
+      city: 'Mbeya',
+      district: 'Mbeya Urban',
+      neighborhood: 'University',
+      latitude: -8.9123,
+      longitude: 33.4789
+    },
+    bedrooms: 1,
+    bathrooms: 1,
+    propertyType: 'studio',
+    amenities: ['Security', 'Water Tank', 'Internet'],
+    images: [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg',
+      'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg'
+    ],
+    status: 'available',
+    createdDate: '2024-01-25',
+    updatedDate: '2024-01-25'
+  },
+  {
+    id: '11',
+    ownerId: 'owner11',
+    title: 'Business Center Apartment in Mbeya',
+    description: 'Modern 2-bedroom apartment in the business district of Mbeya. Ideal for professionals and business travelers.',
+    priceMonthly: 420000,
+    location: {
+      address: 'Business District',
+      city: 'Mbeya',
+      district: 'Mbeya Urban',
+      neighborhood: 'Business Center',
+      latitude: -8.9067,
+      longitude: 33.4634
+    },
+    bedrooms: 2,
+    bathrooms: 2,
+    propertyType: 'apartment',
+    amenities: ['Parking', 'Security', 'Generator', 'Water Tank', 'Internet', 'Air Conditioning'],
+    images: [
+      'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg',
+      'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg',
+      'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg'
+    ],
+    status: 'available',
+    createdDate: '2024-01-28',
+    updatedDate: '2024-01-28'
+  },
+  {
+    id: '12',
+    ownerId: 'owner12',
+    title: 'Countryside House in Mbeya Rural',
+    description: 'Peaceful 3-bedroom house in rural Mbeya with large compound and farming potential. Perfect for those seeking tranquility.',
+    priceMonthly: 350000,
+    location: {
+      address: 'Mbeya Rural',
+      city: 'Mbeya',
+      district: 'Mbeya Rural',
+      neighborhood: 'Countryside',
+      latitude: -8.8745,
+      longitude: 33.4123
+    },
+    bedrooms: 3,
+    bathrooms: 2,
+    propertyType: 'house',
+    amenities: ['Parking', 'Water Tank', 'Garden', 'Security'],
+    images: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg',
+      'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg'
+    ],
+    status: 'available',
+    createdDate: '2024-01-30',
+    updatedDate: '2024-01-30'
+  }
 ];
 
-/**
- * Mock Users Data
- * Sample user accounts representing different user roles
- */
 export const mockUsers: User[] = [
   {
     id: 'user1',
@@ -261,10 +389,6 @@ export const mockUsers: User[] = [
   }
 ];
 
-/**
- * Mock Viewing Requests Data
- * Sample viewing requests from tenants
- */
 export const mockViewingRequests: ViewingRequest[] = [
   {
     id: 'req1',
@@ -277,18 +401,14 @@ export const mockViewingRequests: ViewingRequest[] = [
   }
 ];
 
-/**
- * Mock Payments Data
- * Sample payment transactions with commission calculations
- */
 export const mockPayments: Payment[] = [
   {
     id: 'pay1',
     propertyId: '1',
     tenantId: 'user1',
-    amountTotal: 1380000, // Total amount including 15% commission
-    commissionAmount: 180000, // 15% commission
-    ownerAmount: 1200000, // 85% to owner
+    amountTotal: 1380000,
+    commissionAmount: 180000,
+    ownerAmount: 1200000,
     paymentMethod: 'mpesa',
     transactionReference: 'MP240115001',
     status: 'completed',
