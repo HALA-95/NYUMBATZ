@@ -339,7 +339,7 @@ const HomePage: React.FC = () => {
               Load More Properties / Pakia Mali Zaidi
             </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
