@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Menu, X, User, Heart, Bell, Home, Info, Phone, LogIn, UserPlus, MapPin, Calendar, Users as UsersIcon } from 'lucide-react';
+import { Search, Menu, X, User, Heart, Bell, Home, Info, Phone, LogIn, UserPlus } from 'lucide-react';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -15,16 +15,12 @@ const Header: React.FC<HeaderProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [searchLocation, setSearchLocation] = useState('');
-  const [searchCheckIn, setSearchCheckIn] = useState('');
-  const [searchGuests, setSearchGuests] = useState('');
   const searchRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const combinedQuery = [searchLocation, searchQuery, searchGuests].filter(Boolean).join(' ');
-    if (combinedQuery.trim()) {
-      onSearch(combinedQuery.trim());
+    if (searchQuery.trim()) {
+      onSearch(searchQuery.trim());
       setIsSearchExpanded(false);
     }
   };
@@ -33,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
     const value = e.target.value;
     setSearchQuery(value);
     
-    // Real-time search as user types (with debouncing effect)
+    // Real-time search as user types
     if (value.trim()) {
       onSearch(value.trim());
     }
@@ -41,19 +37,8 @@ const Header: React.FC<HeaderProps> = ({
 
   const clearSearch = () => {
     setSearchQuery('');
-    setSearchLocation('');
-    setSearchCheckIn('');
-    setSearchGuests('');
     setIsSearchExpanded(false);
     onSearch(''); // Clear search results
-  };
-
-  const handleExpandedSearch = () => {
-    const combinedQuery = [searchLocation, searchQuery, searchGuests].filter(Boolean).join(' ');
-    if (combinedQuery.trim()) {
-      onSearch(combinedQuery.trim());
-      setIsSearchExpanded(false);
-    }
   };
 
   // Close expanded search when clicking outside
@@ -105,111 +90,98 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Search - Large screens only */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8" ref={searchRef}>
-            {!isSearchExpanded ? (
-              // Compact Search Bar
+            <form onSubmit={handleSearch} className="w-full">
               <div 
-                onClick={() => setIsSearchExpanded(true)}
-                className="w-full cursor-pointer"
+                className={`relative transition-all duration-300 ease-in-out ${
+                  isSearchExpanded 
+                    ? 'transform scale-105' 
+                    : 'hover:shadow-md'
+                }`}
               >
-                <div className="flex items-center w-full border border-gray-300 rounded-full py-2 px-4 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
-                  <div className="flex-1 flex items-center space-x-3">
-                    <Search className="h-4 w-4 text-gray-400" />
-                    <div className="flex-1">
-                      <span className="text-sm text-gray-500">
-                        {searchQuery || searchLocation || 'Search destinations, prices, property types...'}
-                      </span>
-                    </div>
+                <div 
+                  className={`flex items-center border rounded-full bg-white transition-all duration-300 ${
+                    isSearchExpanded 
+                      ? 'border-teal-500 shadow-lg py-3 px-6' 
+                      : 'border-gray-300 shadow-sm py-2 px-4 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className={`transition-all duration-300 ${
+                      isSearchExpanded ? 'h-5 w-5 text-teal-600' : 'h-4 w-4 text-gray-400'
+                    }`} />
                   </div>
-                  <div className="bg-teal-600 rounded-full p-2">
-                    <Search className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              // Expanded Search Bar (Airbnb Style)
-              <div className="w-full">
-                <div className="bg-white border border-gray-300 rounded-2xl shadow-lg p-2">
-                  <div className="grid grid-cols-4 gap-0">
-                    {/* Location */}
-                    <div className="border-r border-gray-200 p-3">
-                      <label className="block text-xs font-semibold text-gray-900 mb-1">Where</label>
-                      <input
-                        type="text"
-                        value={searchLocation}
-                        onChange={(e) => setSearchLocation(e.target.value)}
-                        placeholder="Search destinations"
-                        className="w-full text-sm text-gray-700 placeholder-gray-400 border-none outline-none bg-transparent"
-                      />
+                  
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleInputChange}
+                    onFocus={() => setIsSearchExpanded(true)}
+                    placeholder={isSearchExpanded 
+                      ? "Search by location, price, property type, amenities..." 
+                      : "Search properties..."
+                    }
+                    className={`block w-full bg-transparent outline-none transition-all duration-300 ${
+                      isSearchExpanded 
+                        ? 'pl-8 pr-12 text-base placeholder-gray-400' 
+                        : 'pl-8 pr-10 text-sm placeholder-gray-500'
+                    }`}
+                  />
+                  
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={clearSearch}
+                      className="absolute inset-y-0 right-12 flex items-center pr-2"
+                    >
+                      <X className="h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors" />
+                    </button>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    className={`absolute inset-y-0 right-0 flex items-center transition-all duration-300 ${
+                      isSearchExpanded 
+                        ? 'pr-4' 
+                        : 'pr-3'
+                    }`}
+                  >
+                    <div className={`rounded-full transition-all duration-300 ${
+                      isSearchExpanded 
+                        ? 'bg-teal-600 hover:bg-teal-700 p-2' 
+                        : 'bg-teal-600 hover:bg-teal-700 p-1.5'
+                    }`}>
+                      <Search className="h-4 w-4 text-white" />
                     </div>
-
-                    {/* Check-in */}
-                    <div className="border-r border-gray-200 p-3">
-                      <label className="block text-xs font-semibold text-gray-900 mb-1">Move in</label>
-                      <input
-                        type="date"
-                        value={searchCheckIn}
-                        onChange={(e) => setSearchCheckIn(e.target.value)}
-                        className="w-full text-sm text-gray-700 border-none outline-none bg-transparent"
-                      />
-                    </div>
-
-                    {/* Property Type */}
-                    <div className="border-r border-gray-200 p-3">
-                      <label className="block text-xs font-semibold text-gray-900 mb-1">Property</label>
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleInputChange}
-                        placeholder="House, apartment..."
-                        className="w-full text-sm text-gray-700 placeholder-gray-400 border-none outline-none bg-transparent"
-                      />
-                    </div>
-
-                    {/* Guests/Bedrooms */}
-                    <div className="p-3 flex items-center justify-between">
-                      <div className="flex-1">
-                        <label className="block text-xs font-semibold text-gray-900 mb-1">Bedrooms</label>
-                        <input
-                          type="text"
-                          value={searchGuests}
-                          onChange={(e) => setSearchGuests(e.target.value)}
-                          placeholder="Add bedrooms"
-                          className="w-full text-sm text-gray-700 placeholder-gray-400 border-none outline-none bg-transparent"
-                        />
-                      </div>
-                      <button
-                        onClick={handleExpandedSearch}
-                        className="bg-teal-600 hover:bg-teal-700 text-white rounded-full p-3 ml-2 transition-colors duration-200"
-                      >
-                        <Search className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
+                  </button>
                 </div>
 
-                {/* Quick suggestions */}
-                <div className="mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4">
-                  <div className="text-xs font-semibold text-gray-900 mb-2">Popular searches</div>
-                  <div className="flex flex-wrap gap-2">
-                    {['Dar es Salaam', 'Mwanza', 'Arusha', 'Mbeya', '2 bedrooms', 'Apartment', 'House'].map((suggestion) => (
-                      <button
-                        key={suggestion}
-                        onClick={() => {
-                          if (suggestion.includes('bedroom') || suggestion === 'Apartment' || suggestion === 'House') {
+                {/* Search suggestions dropdown when expanded */}
+                {isSearchExpanded && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
+                    <div className="text-xs font-semibold text-gray-900 mb-2">Popular searches</div>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        'Dar es Salaam', 'Mwanza', 'Arusha', 'Mbeya', 
+                        '500000', '1000000', '2 bedrooms', '3 bedrooms',
+                        'Apartment', 'House', 'Parking', 'Security'
+                      ].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => {
                             setSearchQuery(suggestion);
-                          } else {
-                            setSearchLocation(suggestion);
-                          }
-                        }}
-                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-700 transition-colors duration-200"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
+                            onSearch(suggestion);
+                            setIsSearchExpanded(false);
+                          }}
+                          className="px-3 py-1 bg-gray-100 hover:bg-teal-100 hover:text-teal-700 rounded-full text-xs text-gray-700 transition-colors duration-200"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-            )}
+            </form>
           </div>
 
           {/* Desktop Authentication & User Actions - Large screens only */}
