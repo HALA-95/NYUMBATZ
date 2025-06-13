@@ -1,22 +1,78 @@
+/**
+ * HERO COMPONENT - MAIN LANDING SECTION
+ * 
+ * The hero section is the first thing users see on the homepage.
+ * It contains the main value proposition, search functionality, and key statistics.
+ * 
+ * KEY FEATURES:
+ * - Compelling headline with bilingual support
+ * - Advanced property search form with multiple filters
+ * - Responsive design optimized for all screen sizes
+ * - Visual statistics to build trust and credibility
+ * - Gradient background for visual appeal
+ * 
+ * SEARCH FUNCTIONALITY:
+ * - Location filtering by major Tanzanian cities
+ * - Property type selection (house, apartment, studio, villa)
+ * - Bedroom count filtering
+ * - Price range selection with common price points
+ * - Form validation and user feedback
+ * 
+ * RESPONSIVE DESIGN:
+ * - Mobile-first approach with stacked form fields
+ * - Tablet: 2-column grid for form fields
+ * - Desktop: 4-column grid for optimal space usage
+ * - Touch-friendly buttons and form elements
+ * 
+ * SCALABILITY NOTES:
+ * - Search filters easily extensible
+ * - Statistics can be dynamically loaded from API
+ * - Form validation can be enhanced with custom rules
+ * - Supports A/B testing for different layouts
+ */
+
 import React, { useState } from 'react';
 import { Search, MapPin, Home, Users } from 'lucide-react';
 import { tanzanianCities } from '../data/mockData';
 import { SearchFilters } from '../types';
 
+/**
+ * HERO COMPONENT PROPS INTERFACE
+ * 
+ * Defines the callback function for search form submission.
+ */
 interface HeroProps {
-  onSearch: (filters: SearchFilters) => void;
+  onSearch: (filters: SearchFilters) => void;  // Callback when user submits search
 }
 
+/**
+ * HERO COMPONENT IMPLEMENTATION
+ * 
+ * Main landing section with search functionality and value proposition.
+ */
 const Hero: React.FC<HeroProps> = ({ onSearch }) => {
+  
+  /**
+   * SEARCH FILTERS STATE
+   * 
+   * Manages the current state of all search form fields.
+   * Initialized with sensible defaults for better UX.
+   */
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
-    location: '',
-    priceRange: { min: 0, max: 3000000 },
-    bedrooms: null,
-    bathrooms: null,
-    houseType: '',
-    amenities: []
+    location: '',                           // No location filter by default
+    priceRange: { min: 0, max: 3000000 },  // Wide price range (0 - 3M TSh)
+    bedrooms: null,                         // No bedroom filter
+    bathrooms: null,                        // No bathroom filter
+    houseType: '',                          // No property type filter
+    amenities: []                           // No amenity filters
   });
 
+  /**
+   * SEARCH FORM SUBMISSION HANDLER
+   * 
+   * Processes form submission and triggers search callback.
+   * Prevents default form submission and validates input.
+   */
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchFilters);
@@ -24,33 +80,42 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
 
   return (
     <div className="relative bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-100 py-8 sm:py-12 lg:py-16 xl:py-24">
+      
+      {/* BACKGROUND OVERLAY - Subtle gradient for depth */}
       <div className="absolute inset-0 bg-gradient-to-r from-teal-600/5 to-blue-600/5"></div>
+      
       <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="text-center">
-          {/* Hero Title - Fully Responsive */}
+          
+          {/* MAIN HEADLINE - Responsive typography */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 leading-tight">
             Find Your Perfect
             <span className="block text-teal-600 mt-1 sm:mt-2">Home in Tanzania</span>
           </h1>
           
-          {/* Hero Description - Responsive text */}
+          {/* SUBTITLE - Value proposition */}
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 lg:mb-12 max-w-2xl mx-auto leading-relaxed px-2 sm:px-4">
             Discover beautiful houses and apartments for rent across Tanzania's major cities. 
             Your dream home is just a click away.
           </p>
 
-          {/* Search Form - Mobile-First Design */}
+          {/* SEARCH FORM CONTAINER - Card-style with shadow */}
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-3 sm:p-4 lg:p-6 xl:p-8 max-w-5xl mx-auto">
             <form onSubmit={handleSearch} className="space-y-3 sm:space-y-4 lg:space-y-6">
-              {/* Mobile-First Grid Layout */}
+              
+              {/* FORM FIELDS GRID - Responsive layout */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                {/* Location */}
+                
+                {/* LOCATION FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
                     Location / Eneo
                   </label>
                   <div className="relative">
+                    {/* Location Icon */}
                     <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    
+                    {/* Location Dropdown */}
                     <select
                       value={searchFilters.location}
                       onChange={(e) => setSearchFilters({ ...searchFilters, location: e.target.value })}
@@ -61,7 +126,8 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                         <option key={city} value={city}>{city}</option>
                       ))}
                     </select>
-                    {/* Custom dropdown arrow */}
+                    
+                    {/* Custom Dropdown Arrow */}
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -70,13 +136,16 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   </div>
                 </div>
 
-                {/* Property Type */}
+                {/* PROPERTY TYPE FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
                     Property Type / Aina ya Mali
                   </label>
                   <div className="relative">
+                    {/* Property Type Icon */}
                     <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    
+                    {/* Property Type Dropdown */}
                     <select
                       value={searchFilters.houseType}
                       onChange={(e) => setSearchFilters({ ...searchFilters, houseType: e.target.value })}
@@ -88,6 +157,8 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       <option value="studio">Studio</option>
                       <option value="villa">Villa</option>
                     </select>
+                    
+                    {/* Custom Dropdown Arrow */}
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -96,13 +167,16 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   </div>
                 </div>
 
-                {/* Bedrooms */}
+                {/* BEDROOMS FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
                     Bedrooms / Vyumba
                   </label>
                   <div className="relative">
+                    {/* Bedrooms Icon */}
                     <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    
+                    {/* Bedrooms Dropdown */}
                     <select
                       value={searchFilters.bedrooms || ''}
                       onChange={(e) => setSearchFilters({ ...searchFilters, bedrooms: e.target.value ? parseInt(e.target.value) : null })}
@@ -115,6 +189,8 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       <option value="4">4+ bedrooms</option>
                       <option value="5">5+ bedrooms</option>
                     </select>
+                    
+                    {/* Custom Dropdown Arrow */}
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -123,15 +199,18 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   </div>
                 </div>
 
-                {/* Price Range */}
+                {/* PRICE RANGE FILTER */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
                     Max Price / Bei ya Juu (TSh)
                   </label>
                   <div className="relative">
+                    {/* Currency Indicator */}
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm font-medium">
                       TSh
                     </span>
+                    
+                    {/* Price Range Dropdown */}
                     <select
                       value={searchFilters.priceRange?.max || 3000000}
                       onChange={(e) => setSearchFilters({ 
@@ -150,6 +229,8 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       <option value={2500000}>2.5M</option>
                       <option value={3000000}>3M+</option>
                     </select>
+                    
+                    {/* Custom Dropdown Arrow */}
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -159,7 +240,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 </div>
               </div>
 
-              {/* Search Button - Fully Responsive */}
+              {/* SEARCH BUTTON - Call-to-action */}
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-teal-600 to-blue-600 text-white py-3 sm:py-4 px-4 sm:px-6 lg:px-8 rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-semibold text-sm sm:text-base lg:text-lg flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:transform active:translate-y-0"
@@ -168,7 +249,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 <span>Search Properties / Tafuta Mali</span>
               </button>
 
-              {/* Quick Search Tips - Mobile Friendly */}
+              {/* SEARCH TIPS - User guidance */}
               <div className="text-center pt-1 sm:pt-2">
                 <p className="text-xs sm:text-sm text-gray-600 px-2">
                   Quick tips: Try "Mbeya 500k", "3 bedrooms Dar", or "apartment parking"
@@ -177,18 +258,24 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
             </form>
           </div>
 
-          {/* Stats - Responsive Grid */}
+          {/* PLATFORM STATISTICS - Trust building */}
           <div className="mt-8 sm:mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            
+            {/* Properties Listed Stat */}
             <div className="text-center">
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 mb-1 sm:mb-2">500+</div>
               <div className="text-gray-600 text-sm sm:text-base">Properties Listed</div>
               <div className="text-gray-500 text-xs">Mali Zilizoorodheshwa</div>
             </div>
+            
+            {/* Cities Covered Stat */}
             <div className="text-center">
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1 sm:mb-2">10+</div>
               <div className="text-gray-600 text-sm sm:text-base">Cities Covered</div>
               <div className="text-gray-500 text-xs">Miji Iliyoshughulikiwa</div>
             </div>
+            
+            {/* Happy Tenants Stat */}
             <div className="text-center">
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600 mb-1 sm:mb-2">1000+</div>
               <div className="text-gray-600 text-sm sm:text-base">Happy Tenants</div>

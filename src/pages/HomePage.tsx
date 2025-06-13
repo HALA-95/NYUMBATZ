@@ -1,3 +1,41 @@
+/**
+ * HOMEPAGE COMPONENT - MAIN APPLICATION PAGE
+ * 
+ * This is the primary page component that orchestrates the entire property search experience.
+ * It manages the application state, handles search functionality, and coordinates between components.
+ * 
+ * KEY FEATURES:
+ * - Property search and filtering with real-time results
+ * - Responsive grid/list view toggle (desktop only)
+ * - Infinite scroll with "Load More" functionality
+ * - Advanced search with multiple filter criteria
+ * - Property details modal/page navigation
+ * - Search result management and display
+ * - Mobile-first responsive design
+ * 
+ * STATE MANAGEMENT:
+ * - Properties data (mock data, will be API in production)
+ * - Filtered and displayed properties
+ * - Search filters and query state
+ * - Pagination and loading states
+ * - View mode and UI preferences
+ * 
+ * SEARCH FUNCTIONALITY:
+ * - Text-based search with intelligent matching
+ * - Price range filtering with flexible input
+ * - Location-based filtering
+ * - Property type and amenity filtering
+ * - Real-time search from header component
+ * - Search result highlighting and management
+ * 
+ * SCALABILITY NOTES:
+ * - Easy to replace mock data with API calls
+ * - Pagination system ready for large datasets
+ * - Filter system extensible for new criteria
+ * - Component structure supports A/B testing
+ * - Performance optimized with proper state management
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Grid, List, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import Hero from '../components/Hero';
@@ -7,32 +45,69 @@ import PropertyDetails from '../components/PropertyDetails';
 import { mockProperties } from '../data/mockData';
 import { Property, SearchFilters as SearchFiltersType } from '../types';
 
-const PROPERTIES_PER_PAGE = 9; // Show 9 properties initially, then load 6 more each time
+/**
+ * PAGINATION CONFIGURATION
+ * 
+ * Controls how many properties are displayed initially and on subsequent loads.
+ * Optimized for performance and user experience.
+ */
+const PROPERTIES_PER_PAGE = 9; // Initial load: 9 properties (3x3 grid)
+// Subsequent loads: 6 properties each time for consistent UX
 
+/**
+ * HOMEPAGE COMPONENT IMPLEMENTATION
+ * 
+ * Main page component managing property search and display functionality.
+ */
 const HomePage: React.FC = () => {
-  const [properties] = useState<Property[]>(mockProperties);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(mockProperties);
-  const [displayedProperties, setDisplayedProperties] = useState<Property[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMoreProperties, setHasMoreProperties] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState<SearchFiltersType>({});
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'newest' | 'featured'>('featured');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  
+  // CORE DATA STATE
+  const [properties] = useState<Property[]>(mockProperties);                    // All available properties (immutable)
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>(mockProperties); // Properties after filtering
+  const [displayedProperties, setDisplayedProperties] = useState<Property[]>([]); // Currently displayed properties
+  
+  // PAGINATION STATE
+  const [currentPage, setCurrentPage] = useState(1);                           // Current pagination page
+  const [hasMoreProperties, setHasMoreProperties] = useState(true);            // Whether more properties available
+  const [isLoading, setIsLoading] = useState(false);                          // Loading state for pagination
+  
+  // SEARCH AND FILTER STATE
+  const [filters, setFilters] = useState<SearchFiltersType>({});               // Current active filters
+  const [searchQuery, setSearchQuery] = useState('');                         // Current search query
+  const [showSearchResults, setShowSearchResults] = useState(false);          // Whether showing search results
+  
+  // UI STATE
+  const [showFilters, setShowFilters] = useState(false);                       // Filter sidebar visibility
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');          // Grid or list view (desktop only)
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null); // Selected property for details
+  const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'newest' | 'featured'>('featured'); // Sort criteria
 
+  /**
+   * ADVANCED SEARCH AND FILTERING FUNCTION
+   * 
+   * This is the core search engine that processes all filter criteria and search queries.
+   * It handles text search, price filtering, location matching, and more.
+   * 
+   * SEARCH CAPABILITIES:
+   * - Multi-term text search across all property fields
+   * - Intelligent price matching (supports "500k", "1m" format)
+   * - Location-based filtering
+   * - Property type and feature filtering
+   * - Flexible numeric and text matching
+   * 
+   * @param newFilters - Filter criteria to apply
+   * @param query - Text search query
+   */
   const applyFilters = (newFilters: SearchFiltersType, query: string = searchQuery) => {
     let filtered = [...properties];
 
-    // Text search filter - enhanced to handle multiple search terms
+    // TEXT SEARCH PROCESSING
     if (query.trim()) {
       const searchTerm = query.toLowerCase();
       const searchTerms = searchTerm.split(' ').filter(term => term.length > 0);
       
       filtered = filtered.filter(property => {
+        // Create searchable text from all property fields
         const searchableText = [
           property.title,
           property.location.city,
@@ -48,21 +123,22 @@ const HomePage: React.FC = () => {
 
         // Check if any search term matches
         return searchTerms.some(term => {
-          // Check for exact matches or partial matches
+          // Direct text matching
           if (searchableText.includes(term)) return true;
           
-          // Check for price ranges (e.g., "500k", "1m", "2.5m")
+          // INTELLIGENT PRICE MATCHING
+          // Supports formats like "500k", "1m", "2.5m"
           if (term.includes('k') || term.includes('m')) {
             const priceValue = parseFloat(term.replace(/[km]/g, ''));
             const multiplier = term.includes('m') ? 1000000 : 1000;
             const searchPrice = priceValue * multiplier;
             const propertyPrice = property.priceMonthly;
             
-            // Allow for price range matching (±20%)
+            // Allow for price range matching (±20% tolerance)
             return Math.abs(propertyPrice - searchPrice) <= (searchPrice * 0.2);
           }
           
-          // Check for numeric price matches
+          // NUMERIC PRICE MATCHING
           if (!isNaN(Number(term))) {
             const searchPrice = Number(term);
             return Math.abs(property.priceMonthly - searchPrice) <= (searchPrice * 0.1);
@@ -77,14 +153,14 @@ const HomePage: React.FC = () => {
       setShowSearchResults(false);
     }
 
-    // Location filter
+    // LOCATION FILTERING
     if (newFilters.location) {
       filtered = filtered.filter(property => 
         property.location.city.toLowerCase().includes(newFilters.location!.toLowerCase())
       );
     }
 
-    // Price range filter
+    // PRICE RANGE FILTERING
     if (newFilters.priceMin) {
       filtered = filtered.filter(property => property.priceMonthly >= newFilters.priceMin!);
     }
@@ -92,22 +168,22 @@ const HomePage: React.FC = () => {
       filtered = filtered.filter(property => property.priceMonthly <= newFilters.priceMax!);
     }
 
-    // Property type filter
+    // PROPERTY TYPE FILTERING
     if (newFilters.propertyType) {
       filtered = filtered.filter(property => property.propertyType === newFilters.propertyType);
     }
 
-    // Bedrooms filter
+    // BEDROOM FILTERING (minimum requirement)
     if (newFilters.bedrooms) {
       filtered = filtered.filter(property => property.bedrooms >= newFilters.bedrooms!);
     }
 
-    // Bathrooms filter
+    // BATHROOM FILTERING (minimum requirement)
     if (newFilters.bathrooms) {
       filtered = filtered.filter(property => property.bathrooms >= newFilters.bathrooms!);
     }
 
-    // Amenities filter
+    // AMENITIES FILTERING (all required amenities must be present)
     if (newFilters.amenities && newFilters.amenities.length > 0) {
       filtered = filtered.filter(property => 
         newFilters.amenities!.every(amenity => 
@@ -116,7 +192,7 @@ const HomePage: React.FC = () => {
       );
     }
 
-    // Sort properties
+    // SORTING LOGIC
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.priceMonthly - b.priceMonthly);
@@ -128,6 +204,7 @@ const HomePage: React.FC = () => {
         filtered.sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime());
         break;
       case 'featured':
+        // Featured properties first, then by creation date
         filtered.sort((a, b) => {
           if (a.featured && !b.featured) return -1;
           if (!a.featured && b.featured) return 1;
@@ -136,6 +213,7 @@ const HomePage: React.FC = () => {
         break;
     }
 
+    // UPDATE STATE
     setFilteredProperties(filtered);
     setFilters(newFilters);
     
@@ -144,8 +222,18 @@ const HomePage: React.FC = () => {
     updateDisplayedProperties(filtered, 1);
   };
 
+  /**
+   * PAGINATION MANAGEMENT FUNCTION
+   * 
+   * Handles the display of properties with pagination logic.
+   * Implements progressive loading for better performance.
+   * 
+   * @param allProperties - All filtered properties
+   * @param page - Current page number
+   */
   const updateDisplayedProperties = (allProperties: Property[], page: number) => {
     const startIndex = 0;
+    // First page shows 9 properties, subsequent pages add 6 more each
     const endIndex = page === 1 ? PROPERTIES_PER_PAGE : PROPERTIES_PER_PAGE + (page - 1) * 6;
     const newDisplayed = allProperties.slice(startIndex, endIndex);
     
@@ -153,12 +241,18 @@ const HomePage: React.FC = () => {
     setHasMoreProperties(endIndex < allProperties.length);
   };
 
+  /**
+   * LOAD MORE PROPERTIES FUNCTION
+   * 
+   * Handles the "Load More" functionality with loading states.
+   * Includes artificial delay for better UX feedback.
+   */
   const loadMoreProperties = () => {
     if (isLoading || !hasMoreProperties) return;
     
     setIsLoading(true);
     
-    // Simulate loading delay for better UX
+    // Simulate loading delay for better UX (remove in production with real API)
     setTimeout(() => {
       const nextPage = currentPage + 1;
       setCurrentPage(nextPage);
@@ -167,18 +261,27 @@ const HomePage: React.FC = () => {
     }, 800);
   };
 
+  /**
+   * SORT CHANGE HANDLER
+   * 
+   * Updates sorting criteria and re-applies filters.
+   */
   const handleSortChange = (newSortBy: typeof sortBy) => {
     setSortBy(newSortBy);
     applyFilters(filters, searchQuery);
   };
 
+  /**
+   * SEARCH HANDLERS
+   * 
+   * Handle different types of search input (header, hero, direct).
+   */
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     applyFilters(filters, query);
   };
 
   const handleHeroSearch = (heroFilters: SearchFiltersType) => {
-    // When hero search is used, also set search results mode
     setShowSearchResults(true);
     applyFilters(heroFilters, searchQuery);
   };
@@ -189,14 +292,18 @@ const HomePage: React.FC = () => {
     applyFilters(filters, '');
   };
 
-  // Listen for search from header
+  /**
+   * HEADER SEARCH EVENT LISTENER
+   * 
+   * Listens for search events from the header component.
+   * Uses custom events for loose coupling between components.
+   */
   useEffect(() => {
     const handleHeaderSearch = (event: CustomEvent) => {
       const query = event.detail;
       handleSearch(query);
     };
 
-    // Listen for custom search events
     window.addEventListener('headerSearch', handleHeaderSearch as EventListener);
     
     return () => {
@@ -204,16 +311,25 @@ const HomePage: React.FC = () => {
     };
   }, []);
 
-  // Apply filters when sortBy changes
+  /**
+   * SORT EFFECT
+   * 
+   * Re-applies filters when sort criteria changes.
+   */
   useEffect(() => {
     applyFilters(filters, searchQuery);
   }, [sortBy]);
 
-  // Initialize displayed properties
+  /**
+   * DISPLAY PROPERTIES EFFECT
+   * 
+   * Updates displayed properties when filtered properties change.
+   */
   useEffect(() => {
     updateDisplayedProperties(filteredProperties, 1);
   }, [filteredProperties]);
 
+  // PROPERTY DETAILS VIEW
   if (selectedProperty) {
     return (
       <PropertyDetails
@@ -223,13 +339,16 @@ const HomePage: React.FC = () => {
     );
   }
 
+  // MAIN HOMEPAGE RENDER
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Only show Hero if not searching */}
+      
+      {/* HERO SECTION - Only show when not searching */}
       {!showSearchResults && <Hero onSearch={handleHeroSearch} />}
       
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
-        {/* Search Results Header - Mobile-First */}
+        
+        {/* SEARCH RESULTS HEADER - Mobile-First */}
         {showSearchResults && (
           <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -251,8 +370,10 @@ const HomePage: React.FC = () => {
           </div>
         )}
 
-        {/* Results Header - Mobile-First */}
+        {/* RESULTS HEADER WITH CONTROLS - Mobile-First */}
         <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:items-start sm:space-y-0 mb-4 sm:mb-6">
+          
+          {/* Results Count and Info */}
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
               {showSearchResults ? 'Search Results' : `${filteredProperties.length} Properties Available`}
@@ -265,7 +386,9 @@ const HomePage: React.FC = () => {
             </p>
           </div>
           
+          {/* Controls Section */}
           <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 lg:space-x-4">
+            
             {/* Sort Dropdown - Responsive */}
             <select
               value={sortBy}
@@ -305,8 +428,10 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
+        {/* MAIN CONTENT AREA */}
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-          {/* Filters Sidebar - Mobile-First */}
+          
+          {/* FILTERS SIDEBAR - Mobile-First */}
           {showFilters && (
             <div className="lg:w-80 flex-shrink-0">
               <div className="sticky top-16 sm:top-20 lg:top-24">
@@ -320,9 +445,11 @@ const HomePage: React.FC = () => {
             </div>
           )}
 
-          {/* Properties Grid/List - Mobile-First */}
+          {/* PROPERTIES GRID/LIST - Mobile-First */}
           <div className="flex-1">
             {filteredProperties.length === 0 ? (
+              
+              // NO RESULTS STATE
               <div className="text-center py-8 sm:py-12">
                 <div className="text-gray-400 mb-4">
                   <svg className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,10 +481,8 @@ const HomePage: React.FC = () => {
               </div>
             ) : (
               <>
-                <div className={`grid gap-4 sm:gap-6 ${
-                  // Always use responsive grid layout
-                  'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
-                }`}>
+                {/* PROPERTIES GRID - Always responsive grid layout */}
+                <div className={`grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3`}>
                   {displayedProperties.map((property) => (
                     <PropertyCard
                       key={property.id}
@@ -367,7 +492,7 @@ const HomePage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Load More Button - Mobile-First */}
+                {/* LOAD MORE BUTTON - Mobile-First */}
                 {hasMoreProperties && (
                   <div className="text-center mt-8 sm:mt-12">
                     <button 
@@ -393,7 +518,7 @@ const HomePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* End of Results Message - Mobile-First */}
+                {/* END OF RESULTS MESSAGE - Mobile-First */}
                 {!hasMoreProperties && filteredProperties.length > PROPERTIES_PER_PAGE && (
                   <div className="text-center mt-8 sm:mt-12 py-6 sm:py-8 border-t border-gray-200">
                     <div className="text-gray-500 mb-2">
