@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, List, SlidersHorizontal } from 'lucide-react';
+import { Grid, List, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import Hero from '../components/Hero';
 import PropertyCard from '../components/PropertyCard';
 import SearchFilters from '../components/SearchFilters';
@@ -7,9 +7,15 @@ import PropertyDetails from '../components/PropertyDetails';
 import { mockProperties } from '../data/mockData';
 import { Property, SearchFilters as SearchFiltersType } from '../types';
 
+const PROPERTIES_PER_PAGE = 9; // Show 9 properties initially, then load 6 more each time
+
 const HomePage: React.FC = () => {
   const [properties] = useState<Property[]>(mockProperties);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(mockProperties);
+  const [displayedProperties, setDisplayedProperties] = useState<Property[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreProperties, setHasMoreProperties] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<SearchFiltersType>({});
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -132,6 +138,33 @@ const HomePage: React.FC = () => {
 
     setFilteredProperties(filtered);
     setFilters(newFilters);
+    
+    // Reset pagination when filters change
+    setCurrentPage(1);
+    updateDisplayedProperties(filtered, 1);
+  };
+
+  const updateDisplayedProperties = (allProperties: Property[], page: number) => {
+    const startIndex = 0;
+    const endIndex = page === 1 ? PROPERTIES_PER_PAGE : PROPERTIES_PER_PAGE + (page - 1) * 6;
+    const newDisplayed = allProperties.slice(startIndex, endIndex);
+    
+    setDisplayedProperties(newDisplayed);
+    setHasMoreProperties(endIndex < allProperties.length);
+  };
+
+  const loadMoreProperties = () => {
+    if (isLoading || !hasMoreProperties) return;
+    
+    setIsLoading(true);
+    
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      updateDisplayedProperties(filteredProperties, nextPage);
+      setIsLoading(false);
+    }, 800);
   };
 
   const handleSortChange = (newSortBy: typeof sortBy) => {
@@ -175,6 +208,11 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     applyFilters(filters, searchQuery);
   }, [sortBy]);
+
+  // Initialize displayed properties
+  useEffect(() => {
+    updateDisplayedProperties(filteredProperties, 1);
+  }, [filteredProperties]);
 
   if (selectedProperty) {
     return (
@@ -221,8 +259,8 @@ const HomePage: React.FC = () => {
             </h2>
             <p className="text-gray-600 mt-1">
               {showSearchResults 
-                ? `${filteredProperties.length} properties found`
-                : `Mali ${filteredProperties.length} zinapatikana Tanzania`
+                ? `${filteredProperties.length} properties found • Showing ${displayedProperties.length} of ${filteredProperties.length}`
+                : `Mali ${filteredProperties.length} zinapatikana Tanzania • Showing ${displayedProperties.length} of ${filteredProperties.length}`
               }
             </p>
           </div>
@@ -315,31 +353,88 @@ const HomePage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className={`grid gap-6 ${
-                viewMode === 'grid' 
-                  ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
-                  : 'grid-cols-1'
-              }`}>
-                {filteredProperties.map((property) => (
-                  <PropertyCard
-                    key={property.id}
-                    property={property}
-                    onViewDetails={setSelectedProperty}
-                  />
-                ))}
-              </div>
+              <>
+                <div className={`grid gap-6 ${
+                  viewMode === 'grid' 
+                    ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
+                    : 'grid-cols-1'
+                }`}>
+                  {displayedProperties.map((property) => (
+                    <PropertyCard
+                      key={property.id}
+                      property={property}
+                      onViewDetails={setSelectedProperty}
+                    />
+                  ))}
+                </div>
+
+                {/* Load More Button */}
+                {hasMoreProperties && (
+                  <div className="text-center mt-12">
+                    <button 
+                      onClick={loadMoreProperties}
+                      disabled={isLoading}
+                      className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 mx-auto min-w-[200px]"
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Load More Properties</span>
+                          <ChevronDown className="h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Showing {displayedProperties.length} of {filteredProperties.length} properties
+                    </p>
+                  </div>
+                )}
+
+                {/* End of Results Message */}
+                {!hasMoreProperties && filteredProperties.length > PROPERTIES_PER_PAGE && (
+                  <div className="text-center mt-12 py-8 border-t border-gray-200">
+                    <div className="text-gray-500 mb-2">
+                      <svg className="h-8 w-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">
+                      You've seen all properties!
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      You've viewed all {filteredProperties.length} properties matching your criteria.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <button
+                        onClick={() => {
+                          setCurrentPage(1);
+                          updateDisplayedProperties(filteredProperties, 1);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Back to Top
+                      </button>
+                      <button
+                        onClick={() => {
+                          clearSearch();
+                          setShowFilters(true);
+                        }}
+                        className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Modify Search
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
-
-        {/* Load More Button */}
-        {filteredProperties.length > 0 && (
-          <div className="text-center mt-12">
-            <button className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-              Load More Properties / Pakia Mali Zaidi
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
