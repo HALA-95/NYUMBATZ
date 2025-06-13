@@ -216,23 +216,29 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Newsletter Signup */}
+      {/* Newsletter Signup - FIXED FOR MOBILE RESPONSIVENESS */}
       <div className="border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-            <div>
+          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+            {/* Newsletter Header */}
+            <div className="text-center md:text-left">
               <h3 className="text-lg font-semibold text-gray-200">Stay Updated</h3>
               <p className="text-gray-400 text-sm">Get the latest properties and updates delivered to your inbox</p>
+              <p className="text-gray-500 text-xs mt-1">Pokea habari za mali na sasisho kwenye barua pepe yako</p>
             </div>
-            <div className="flex w-full md:w-auto">
-              <input
-                type="email"
-                placeholder="Enter your email / Ingiza barua pepe yako"
-                className="flex-1 md:w-64 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-white placeholder-gray-400"
-              />
-              <button className="px-6 py-2 bg-teal-600 hover:bg-teal-700 rounded-r-lg transition-colors duration-200 font-medium">
-                Subscribe
-              </button>
+            
+            {/* Newsletter Form - Fully Responsive */}
+            <div className="w-full md:w-auto md:min-w-[320px] lg:min-w-[400px]">
+              <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-0">
+                <input
+                  type="email"
+                  placeholder="Enter your email / Ingiza barua pepe yako"
+                  className="flex-1 px-4 py-3 sm:py-2.5 bg-gray-800 border border-gray-700 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-white placeholder-gray-400 text-sm sm:text-base min-w-0"
+                />
+                <button className="px-6 py-3 sm:py-2.5 bg-teal-600 hover:bg-teal-700 rounded-lg sm:rounded-l-none sm:rounded-r-lg transition-colors duration-200 font-medium text-sm sm:text-base whitespace-nowrap">
+                  Subscribe / Jiunge
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -244,14 +250,14 @@ const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
             <div className="flex items-center space-x-2 text-gray-400 text-sm">
               <span>© {currentYear} NyumbaTZ. All rights reserved.</span>
-              <span>•</span>
-              <span>Made with</span>
-              <Heart className="h-4 w-4 text-red-500 fill-current" />
-              <span>by Mallick Technologies</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="hidden sm:inline">Made with</span>
+              <Heart className="h-4 w-4 text-red-500 fill-current hidden sm:inline" />
+              <span className="hidden sm:inline">by Mallick Technologies</span>
             </div>
             
             <div className="flex items-center space-x-4 text-gray-400 text-sm">
-              <span>Powered by modern technology</span>
+              <span className="hidden lg:inline">Powered by modern technology</span>
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span>All systems operational</span>
