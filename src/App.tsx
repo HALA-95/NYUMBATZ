@@ -6,9 +6,9 @@ import HomePage from './pages/HomePage';
 
 function App() {
   const handleSearch = (query: string) => {
-    // This search will be handled by the HomePage component
-    // We'll pass it down through props or context
-    console.log('Search query from header:', query);
+    // Dispatch a custom event that HomePage can listen to
+    const searchEvent = new CustomEvent('headerSearch', { detail: query });
+    window.dispatchEvent(searchEvent);
   };
 
   const handleAuthClick = () => {

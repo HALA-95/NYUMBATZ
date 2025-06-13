@@ -145,10 +145,18 @@ const HomePage: React.FC = () => {
   };
 
   const handleHeroSearch = (heroFilters: SearchFiltersType) => {
+    // When hero search is used, also set search results mode
+    setShowSearchResults(true);
     applyFilters(heroFilters, searchQuery);
   };
 
-  // Listen for search from header (via URL params or global state)
+  const clearSearch = () => {
+    setSearchQuery('');
+    setShowSearchResults(false);
+    applyFilters(filters, '');
+  };
+
+  // Listen for search from header
   useEffect(() => {
     const handleHeaderSearch = (event: CustomEvent) => {
       const query = event.detail;
@@ -189,21 +197,17 @@ const HomePage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-blue-900">
-                  Search Results for: "{searchQuery}"
+                  {searchQuery ? `Search Results for: "${searchQuery}"` : 'Filtered Results'}
                 </h2>
                 <p className="text-blue-700">
-                  Found {filteredProperties.length} properties matching your search
+                  Found {filteredProperties.length} properties {searchQuery ? 'matching your search' : 'matching your criteria'}
                 </p>
               </div>
               <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setShowSearchResults(false);
-                  applyFilters(filters, '');
-                }}
+                onClick={clearSearch}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Clear Search
+                {searchQuery ? 'Clear Search' : 'Show All'}
               </button>
             </div>
           </div>
@@ -288,7 +292,7 @@ const HomePage: React.FC = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-medium text-gray-900 mb-2">
-                  {showSearchResults ? `No properties found for "${searchQuery}"` : 'No properties found'}
+                  {showSearchResults ? `No properties found${searchQuery ? ` for "${searchQuery}"` : ''}` : 'No properties found'}
                 </h3>
                 <p className="text-gray-600 mb-4">
                   {showSearchResults 
@@ -302,11 +306,7 @@ const HomePage: React.FC = () => {
                       Search examples: "Mbeya", "500000", "apartment", "3 bedrooms", "parking"
                     </p>
                     <button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setShowSearchResults(false);
-                        applyFilters(filters, '');
-                      }}
+                      onClick={clearSearch}
                       className="text-blue-600 hover:text-blue-800 underline"
                     >
                       Clear search and show all properties
@@ -339,7 +339,7 @@ const HomePage: React.FC = () => {
               Load More Properties / Pakia Mali Zaidi
             </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
