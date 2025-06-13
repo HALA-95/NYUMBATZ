@@ -191,7 +191,7 @@ const Footer: React.FC = () => {
                   <MapPin className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-gray-300 text-sm">Dar es Salaam, Tanzania</p>
+                  <p className="text-gray-300 text-sm">Mbeya, Tanzania</p>
                   <p className="text-gray-500 text-xs">Headquarters</p>
                 </div>
               </div>
@@ -247,7 +247,7 @@ const Footer: React.FC = () => {
               <span>•</span>
               <span>Made with</span>
               <Heart className="h-4 w-4 text-red-500 fill-current" />
-              <span>in Tanzania</span>
+              <span>by Mallick Technologies</span>
             </div>
             
             <div className="flex items-center space-x-4 text-gray-400 text-sm">
