@@ -13,7 +13,7 @@
  * - Quick login options for testing
  * 
  * MOCK CREDENTIALS:
- * - Admin: admin@nyumbatz.com / password123
+ * - Admin: admin@jipangishe.com / password123
  * - Tenant: john.mwamba@gmail.com / password123
  * - Owner: grace.kimonge@gmail.com / password123
  * 
@@ -119,7 +119,7 @@ const LoginPage: React.FC = () => {
         <div className="text-center">
           <Link to="/" className="inline-block">
             <h1 className="text-3xl font-bold text-teal-600 hover:text-teal-700 transition-colors">
-              Nyumba<span className="text-orange-500">TZ</span>
+              Jipangishe
             </h1>
           </Link>
           <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-gray-900">
@@ -223,7 +223,7 @@ const LoginPage: React.FC = () => {
             </p>
             <div className="grid grid-cols-1 gap-2">
               <button
-                onClick={() => handleQuickLogin('admin@nyumbatz.com')}
+                onClick={() => handleQuickLogin('admin@jipangishe.com')}
                 disabled={isSubmitting}
                 className="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
               >

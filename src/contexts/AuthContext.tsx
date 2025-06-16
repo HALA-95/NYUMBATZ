@@ -66,7 +66,7 @@ const mockUsers: User[] = [
   {
     id: 'admin1',
     fullName: 'Admin User',
-    email: 'admin@nyumbatz.com',
+    email: 'admin@jipangishe.com',
     phoneNumber: '+255732345678',
     userRole: 'admin',
     isVerified: true,
@@ -117,14 +117,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = () => {
       try {
-        const storedUser = localStorage.getItem('nyumbatz-user');
+        const storedUser = localStorage.getItem('jipangishe-user');
         if (storedUser) {
           const userData = JSON.parse(storedUser);
           setUser(userData);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        localStorage.removeItem('nyumbatz-user');
+        localStorage.removeItem('jipangishe-user');
       } finally {
         setIsLoading(false);
       }
@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (foundUser && password === 'password123') {
         setUser(foundUser);
-        localStorage.setItem('nyumbatz-user', JSON.stringify(foundUser));
+        localStorage.setItem('jipangishe-user', JSON.stringify(foundUser));
         return true;
       }
       
@@ -175,7 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('nyumbatz-user');
+    localStorage.removeItem('jipangishe-user');
   };
 
   /**
@@ -214,7 +214,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       mockUsers.push(newUser);
       setUser(newUser);
-      localStorage.setItem('nyumbatz-user', JSON.stringify(newUser));
+      localStorage.setItem('jipangishe-user', JSON.stringify(newUser));
       
       return true;
     } catch (error) {
@@ -244,7 +244,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
-      localStorage.setItem('nyumbatz-user', JSON.stringify(updatedUser));
+      localStorage.setItem('jipangishe-user', JSON.stringify(updatedUser));
       
       return true;
     } catch (error) {
@@ -291,7 +291,7 @@ export const useAuth = (): AuthContextType => {
  * MOCK LOGIN CREDENTIALS FOR TESTING:
  * 
  * Admin:
- * - Email: admin@nyumbatz.com
+ * - Email: admin@jipangishe.com
  * - Password: password123
  * 
  * Tenant:

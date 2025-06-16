@@ -217,7 +217,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center flex-shrink-0">
             <Link to="/">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 cursor-pointer hover:text-teal-700 transition-colors">
-                Nyumba<span className="text-orange-500">TZ</span>
+                Jipangishe
               </h1>
             </Link>
           </div>

@@ -221,7 +221,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link to="/" className="text-xl font-bold text-teal-600">
-                Nyumba<span className="text-orange-500">TZ</span>
+                Jipangishe
               </Link>
               <span className="text-gray-300">|</span>
               <h1 className="text-lg font-semibold text-gray-900">Admin Dashboard</h1>
