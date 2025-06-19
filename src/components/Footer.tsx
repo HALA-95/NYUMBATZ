@@ -142,7 +142,7 @@ const Footer: React.FC = () => {
             <div>
               {/* Company Logo and Name */}
               <h2 className="text-2xl font-bold text-teal-400">
-                Jipangishe
+                {t('footer:company.name')}
               </h2>
               
               {/* Company Description */}

@@ -12,7 +12,6 @@
  * - Real-time search with suggestions
  * - Language switching with react-i18next
  * - Bilingual support (English/Swahili)
- * - Role-based user menu with dashboard links
  * 
  * RESPONSIVE BREAKPOINTS:
  * - Mobile: < 768px (hamburger menu, bottom search)
@@ -35,9 +34,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
-import { Search, Menu, X, User, Heart, Bell, Home, Info, Phone, LogIn, UserPlus, Settings, LogOut } from 'lucide-react';
+import { Search, Menu, X, User, Heart, Bell, Home, Info, Phone, LogIn, UserPlus } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 
 /**
@@ -48,8 +45,8 @@ import LanguageSwitcher from './LanguageSwitcher';
  */
 interface HeaderProps {
   onSearch?: (query: string) => void;    // Callback for search functionality
-  isAuthenticated?: boolean;             // User authentication state (deprecated - using context)
-  onAuthClick?: () => void;              // Callback for auth actions (deprecated - using context)
+  isAuthenticated?: boolean;             // User authentication state
+  onAuthClick?: () => void;              // Callback for auth actions (login/signup)
 }
 
 /**
@@ -58,11 +55,10 @@ interface HeaderProps {
  * Main navigation component with responsive design, search functionality, and language switching.
  */
 const Header: React.FC<HeaderProps> = ({ 
-  onSearch = () => {}
+  onSearch = () => {}, 
+  isAuthenticated = false, 
+  onAuthClick = () => {} 
 }) => {
-  // AUTHENTICATION CONTEXT
-  const { user, isAuthenticated, logout } = useAuth();
-  
   // INTERNATIONALIZATION HOOKS
   const { t } = useTranslation(['header', 'common']);
 
@@ -70,12 +66,10 @@ const Header: React.FC<HeaderProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);           // Mobile menu toggle
   const [searchQuery, setSearchQuery] = useState('');           // Current search input
   const [isSearchExpanded, setIsSearchExpanded] = useState(false); // Search expansion state
-  const [showUserMenu, setShowUserMenu] = useState(false);      // User dropdown menu
 
   // REFS FOR CLICK OUTSIDE DETECTION
   const searchRef = useRef<HTMLDivElement>(null);               // Desktop search container
   const mediumSearchRef = useRef<HTMLDivElement>(null);         // Tablet search container
-  const userMenuRef = useRef<HTMLDivElement>(null);             // User menu container
 
   /**
    * SEARCH FORM SUBMISSION HANDLER
@@ -119,49 +113,9 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   /**
-   * USER MENU TOGGLE
-   * 
-   * Toggles user dropdown menu visibility.
-   */
-  const toggleUserMenu = () => {
-    setShowUserMenu(!showUserMenu);
-  };
-
-  /**
-   * LOGOUT HANDLER
-   * 
-   * Handles user logout with menu cleanup.
-   */
-  const handleLogout = () => {
-    logout();
-    setShowUserMenu(false);
-    setIsMenuOpen(false);
-  };
-
-  /**
-   * GET DASHBOARD LINK
-   * 
-   * Returns appropriate dashboard link based on user role.
-   */
-  const getDashboardLink = () => {
-    if (!user) return '/dashboard';
-    
-    switch (user.userRole) {
-      case 'admin':
-        return '/admin';
-      case 'tenant':
-        return '/tenant';
-      case 'owner':
-        return '/owner';
-      default:
-        return '/dashboard';
-    }
-  };
-
-  /**
    * CLICK OUTSIDE DETECTION EFFECT
    * 
-   * Closes expanded search and user menu when user clicks outside.
+   * Closes expanded search when user clicks outside.
    * Improves UX by managing focus states.
    */
   useEffect(() => {
@@ -171,9 +125,6 @@ const Header: React.FC<HeaderProps> = ({
       }
       if (mediumSearchRef.current && !mediumSearchRef.current.contains(event.target as Node)) {
         setIsSearchExpanded(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
       }
     };
 
@@ -215,11 +166,9 @@ const Header: React.FC<HeaderProps> = ({
           
           {/* LOGO SECTION - Responsive sizing */}
           <div className="flex items-center flex-shrink-0">
-            <Link to="/">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 cursor-pointer hover:text-teal-700 transition-colors">
-                Jipangishe
-              </h1>
-            </Link>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 cursor-pointer hover:text-teal-700 transition-colors">
+              Nyumba<span className="text-orange-500">TZ</span>
+            </h1>
           </div>
 
           {/* DESKTOP NAVIGATION - Large screens only */}
@@ -367,7 +316,7 @@ const Header: React.FC<HeaderProps> = ({
             {/* Language Switcher */}
             <LanguageSwitcher variant="dropdown" size="md" showLabel={false} />
 
-            {isAuthenticated && user ? (
+            {isAuthenticated ? (
               // AUTHENTICATED USER MENU
               <>
                 {/* Favorites Button with notification badge */}
@@ -383,85 +332,33 @@ const Header: React.FC<HeaderProps> = ({
                 </button>
                 
                 {/* User Profile Menu */}
-                <div className="relative" ref={userMenuRef}>
-                  <button
-                    onClick={toggleUserMenu}
-                    className="flex items-center space-x-2 bg-gray-100 rounded-full pl-3 pr-2 py-1 hover:shadow-md transition-shadow duration-200"
-                  >
-                    <span className="text-sm font-medium text-gray-700">{user.fullName.split(' ')[0]}</span>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      user.userRole === 'admin' ? 'bg-red-600' :
-                      user.userRole === 'owner' ? 'bg-green-600' :
-                      'bg-teal-600'
-                    }`}>
-                      <User className="h-4 w-4 text-white" />
-                    </div>
-                  </button>
-
-                  {/* User Dropdown Menu */}
-                  {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
-                        <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
-                          user.userRole === 'admin' ? 'bg-red-100 text-red-800' :
-                          user.userRole === 'owner' ? 'bg-green-100 text-green-800' :
-                          'bg-teal-100 text-teal-800'
-                        }`}>
-                          {user.userRole}
-                        </span>
-                      </div>
-                      
-                      <Link
-                        to={getDashboardLink()}
-                        onClick={() => setShowUserMenu(false)}
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Dashboard
-                      </Link>
-                      
-                      <Link
-                        to="/profile"
-                        onClick={() => setShowUserMenu(false)}
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <User className="h-4 w-4 mr-2" />
-                        Profile
-                      </Link>
-                      
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
-                      </button>
-                    </div>
-                  )}
+                <div className="flex items-center space-x-2 bg-gray-100 rounded-full pl-3 pr-2 py-1 hover:shadow-md transition-shadow duration-200 cursor-pointer">
+                  <span className="text-sm font-medium text-gray-700">David M.</span>
+                  <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
                 </div>
               </>
             ) : (
               // UNAUTHENTICATED USER ACTIONS
               <div className="flex items-center space-x-2 xl:space-x-3">
                 {/* Sign In Button */}
-                <Link
-                  to="/login"
+                <button
+                  onClick={onAuthClick}
                   className="flex items-center space-x-2 text-gray-700 hover:text-teal-600 transition-colors duration-200 font-medium text-sm xl:text-base"
                 >
                   <LogIn className="h-4 w-4" />
                   <span>{t('header:auth.signIn')}</span>
-                </Link>
+                </button>
                 
                 {/* Sign Up Button */}
-                <Link
-                  to="/login"
+                <button
+                  onClick={onAuthClick}
                   className="flex items-center space-x-2 bg-teal-600 text-white px-3 xl:px-4 py-2 rounded-full hover:bg-teal-700 transition-colors duration-200 font-medium text-sm xl:text-base"
                 >
                   <UserPlus className="h-4 w-4" />
                   <span>{t('header:auth.signUp')}</span>
-                </Link>
+                </button>
               </div>
             )}
           </div>
@@ -532,40 +429,19 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* MOBILE USER SECTION */}
-            {isAuthenticated && user ? (
+            {isAuthenticated ? (
               // AUTHENTICATED USER MOBILE MENU
               <>
                 {/* User Profile Section */}
                 <div className="flex items-center space-x-3 py-3 border-b border-gray-100">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    user.userRole === 'admin' ? 'bg-red-600' :
-                    user.userRole === 'owner' ? 'bg-green-600' :
-                    'bg-teal-600'
-                  }`}>
+                  <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
                     <User className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900 text-sm sm:text-base">{user.fullName}</div>
-                    <div className="text-xs sm:text-sm text-gray-500">{user.email}</div>
-                    <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
-                      user.userRole === 'admin' ? 'bg-red-100 text-red-800' :
-                      user.userRole === 'owner' ? 'bg-green-100 text-green-800' :
-                      'bg-teal-100 text-teal-800'
-                    }`}>
-                      {user.userRole}
-                    </span>
+                    <div className="font-medium text-gray-900 text-sm sm:text-base">David Mwakibolwa</div>
+                    <div className="text-xs sm:text-sm text-gray-500">david.mwakibolwa@email.com</div>
                   </div>
                 </div>
-                
-                {/* Dashboard Link */}
-                <Link
-                  to={getDashboardLink()}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
-                >
-                  <Settings className="h-5 w-5" />
-                  <span className="text-sm sm:text-base">Dashboard</span>
-                </Link>
                 
                 {/* User Action Links */}
                 <a 
@@ -587,11 +463,8 @@ const Header: React.FC<HeaderProps> = ({
                 </a>
                 
                 {/* Sign Out Button */}
-                <button 
-                  onClick={handleLogout}
-                  className="w-full text-left flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200"
-                >
-                  <LogOut className="h-5 w-5" />
+                <button className="w-full text-left flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200">
+                  <LogIn className="h-5 w-5 rotate-180" />
                   <span className="text-sm sm:text-base">{t('header:auth.signOut')}</span>
                 </button>
               </>
@@ -599,24 +472,28 @@ const Header: React.FC<HeaderProps> = ({
               // UNAUTHENTICATED USER MOBILE MENU
               <div className="space-y-2 pt-2 border-t border-gray-100">
                 {/* Sign In Button */}
-                <Link
-                  to="/login"
-                  onClick={() => setIsMenuOpen(false)}
+                <button
+                  onClick={() => {
+                    onAuthClick();
+                    setIsMenuOpen(false);
+                  }}
                   className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors duration-200 font-medium text-sm sm:text-base"
                 >
                   <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>{t('header:auth.signIn')}</span>
-                </Link>
+                </button>
                 
                 {/* Sign Up Button */}
-                <Link
-                  to="/login"
-                  onClick={() => setIsMenuOpen(false)}
+                <button
+                  onClick={() => {
+                    onAuthClick();
+                    setIsMenuOpen(false);
+                  }}
                   className="w-full flex items-center justify-center space-x-2 bg-teal-600 text-white px-4 py-3 rounded-md hover:bg-teal-700 transition-colors duration-200 font-medium text-sm sm:text-base"
                 >
                   <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>{t('header:auth.signUp')}</span>
-                </Link>
+                </button>
               </div>
             )}
           </div>
