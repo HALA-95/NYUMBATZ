@@ -202,10 +202,13 @@ export const auth = {
   // Sign up new user
   signUp: async (email: string, password: string, userData: { fullName: string; phoneNumber: string; userRole: 'tenant' | 'landlord' }) => {
     try {
+      console.log('Starting signup with data:', { email, userData });
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: undefined, // Disable email confirmation for MVP
           data: {
             full_name: userData.fullName,
             phone_number: userData.phoneNumber,
@@ -215,40 +218,47 @@ export const auth = {
       });
       
       if (error) {
-        console.error('Supabase signup error:', error);
+        console.error('Supabase signup error:', error.message, error);
         return { data, error };
       }
       
-      console.log('Signup successful:', data);
-      return { data, error: null };
-    } catch (err) {
-      console.error('Signup catch error:', err);
-      return { data: null, error: err };
-    }
-  },
-
-  // Sign up new user (alternative method without email confirmation)
-  signUpDirect: async (email: string, password: string, userData: { fullName: string; phoneNumber: string; userRole: 'tenant' | 'landlord' }) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: undefined, // Disable email confirmation
-        data: {
-          full_name: userData.fullName,
-          phone_number: userData.phoneNumber,
-          user_role: userData.userRole
+      console.log('Signup successful, user created:', data.user?.id);
+      
+      // Wait a moment for the trigger to create the profile
+      if (data.user) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Verify profile was created
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) {
+          console.log('Profile not found, creating manually...', profileError);
+          // Create profile manually if trigger failed
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              full_name: userData.fullName,
+              email: email,
+              phone_number: userData.phoneNumber,
+              user_role: userData.userRole,
+              is_verified: false
+            });
+            
+          if (createError) {
+            console.error('Manual profile creation failed:', createError);
+          } else {
+            console.log('Profile created manually');
+          }
+        } else {
+          console.log('Profile created by trigger:', profile);
         }
       }
-    });
       
-      if (error) {
-        console.error('Supabase signup error:', error);
-        return { data, error };
-      }
-      
-      console.log('Signup successful:', data);
       return { data, error: null };
     } catch (err) {
       console.error('Signup catch error:', err);
@@ -282,14 +292,17 @@ export const auth = {
   // Check if user exists
   checkUserExists: async (email: string) => {
     try {
+      console.log('Checking if user exists:', email);
       const { data, error } = await supabase
         .from('profiles')
         .select('email')
         .eq('email', email)
-        .single();
+        .maybeSingle(); // Use maybeSingle to avoid error when no rows found
       
-      return { exists: !!data, error };
+      console.log('User exists check result:', { exists: !!data, error });
+      return { exists: !!data, error: null }; // Don't return error for "no rows found"
     } catch (err) {
+      console.error('Error checking user existence:', err);
       return { exists: false, error: err };
     }
   },

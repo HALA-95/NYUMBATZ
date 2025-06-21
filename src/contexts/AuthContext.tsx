@@ -104,10 +104,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Starting signup process...', { email, userData });
       
-      // Check if user already exists
-      const { exists } = await auth.checkUserExists(email);
-      if (exists) {
-        return { error: { message: 'User with this email already exists' } };
+      // Check if user already exists (but don't fail if check fails)
+      try {
+        const { exists } = await auth.checkUserExists(email);
+        if (exists) {
+          return { error: { message: 'User with this email already exists' } };
+        }
+      } catch (checkError) {
+        console.log('User existence check failed, proceeding with signup:', checkError);
+        // Continue with signup even if check fails
       }
       
       const { data, error } = await auth.signUp(email, password, userData);
@@ -118,29 +123,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       console.log('Signup data:', data);
-      
-      // Check if profile was created by trigger
-      if (data.user) {
-        // Wait a moment for the trigger to execute
-        setTimeout(async () => {
-          try {
-            const { data: profile, error: profileError } = await db.profiles.getById(data.user!.id);
-            if (profileError || !profile) {
-              console.log('Profile not created by trigger, creating manually...');
-              // Create profile manually if trigger failed
-              await auth.createProfile(data.user!.id, {
-                fullName: userData.fullName,
-                email: email,
-                phoneNumber: userData.phoneNumber,
-                userRole: userData.userRole
-              });
-            }
-          } catch (err) {
-            console.error('Error checking/creating profile:', err);
-          }
-        }, 1000);
-      }
-      
       return { error: null };
     } catch (error) {
       console.error('Signup catch error:', error);
