@@ -390,11 +390,25 @@ export const auth = {
 
   // Sign in user
   signIn: async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    return { data, error };
+    try {
+      console.log('Attempting sign in for:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        console.error('Sign in error:', error.message, error);
+        return { data, error };
+      }
+      
+      console.log('Sign in successful:', data.user?.id);
+      return { data, error: null };
+    } catch (err) {
+      console.error('Sign in catch error:', err);
+      return { data: null, error: err };
+    }
   },
 
   // Sign out user
