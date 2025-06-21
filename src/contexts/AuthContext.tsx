@@ -229,6 +229,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const getInitialSession = async () => {
       try {
         console.log('Getting initial session...');
+        
+        // If Supabase is not configured, skip auth and set loading to false
+        if (!isSupabaseConfigured) {
+          console.log('Supabase not configured, skipping auth initialization');
+          setLoading(false);
+          return;
+        }
+        
         const { data: { session } } = await supabase.auth.getSession();
         console.log('Initial session:', session);
         
@@ -251,6 +259,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     getInitialSession();
+
+    // If Supabase is not configured, don't set up auth listener
+    if (!isSupabaseConfigured) {
+      return;
+    }
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -280,7 +293,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [loading]);
 
   // Computed values
   const isLandlord = profile?.user_role === 'landlord';
