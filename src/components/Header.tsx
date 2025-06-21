@@ -405,99 +405,190 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* MOBILE/TABLET OVERLAY MENU */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg">
-          <div className="px-3 sm:px-4 pt-2 pb-3 space-y-1">
+        <>
+          {/* OVERLAY BACKDROP */}
+          <div 
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setIsMenuOpen(false)}
+          ></div>
+          
+          {/* SLIDE-OUT MENU FROM LEFT */}
+          <div className="lg:hidden fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+            {/* MENU HEADER */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-teal-50">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">N</span>
+                </div>
+                <div>
+                  <h2 className="font-bold text-teal-600 text-lg">NyumbaTZ</h2>
+                  <p className="text-xs text-gray-600">Find Your Perfect Home</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-6">
             
-            {/* NAVIGATION LINKS */}
-            <div className="space-y-1 mb-4">
-              {navigationLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="flex items-center space-x-3 px-3 py-3 text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <link.icon className="h-5 w-5" />
-                  <span className="font-medium text-sm sm:text-base">{link.name}</span>
-                </a>
-              ))}
-            </div>
+              {/* NAVIGATION LINKS SECTION */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Navigation</h3>
+                <div className="space-y-1">
+                  {navigationLinks.map((link) => (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      className="flex items-center space-x-3 px-3 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors duration-200 group"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <link.icon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                      <span className="font-medium">{link.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
 
-            {/* MOBILE LANGUAGE SWITCHER */}
-            <div className="mb-4 px-3">
-              <LanguageSwitcher variant="dropdown" size="md" showLabel={true} />
-            </div>
+              {/* LANGUAGE SWITCHER SECTION */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Language / Lugha</h3>
+                <div className="px-3">
+                  <LanguageSwitcher variant="dropdown" size="md" showLabel={true} />
+                </div>
+              </div>
 
-            {/* MOBILE USER SECTION */}
-            {isAuthenticated ? (
-              // AUTHENTICATED USER MOBILE MENU
-              <>
-                {/* User Profile Section */}
-                <div className="flex items-center space-x-3 py-3 border-b border-gray-100">
-                  <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
-                    <User className="h-5 w-5 text-white" />
+              {/* USER SECTION */}
+              {isAuthenticated ? (
+                // AUTHENTICATED USER MOBILE MENU
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Account</h3>
+                  
+                  {/* User Profile Section */}
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg mb-4">
+                    <div className="w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center">
+                      <User className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">David Mwakibolwa</div>
+                      <div className="text-sm text-gray-500">david.mwakibolwa@email.com</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium text-gray-900 text-sm sm:text-base">David Mwakibolwa</div>
-                    <div className="text-xs sm:text-sm text-gray-500">david.mwakibolwa@email.com</div>
+                  
+                  {/* User Action Links */}
+                  <div className="space-y-1">
+                    <a 
+                      href="#favorites" 
+                      className="flex items-center justify-between px-3 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Heart className="h-5 w-5" />
+                        <span>{t('header:user.favorites')}</span>
+                      </div>
+                      <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-medium">3</span>
+                    </a>
+                    
+                    <a 
+                      href="#notifications" 
+                      className="flex items-center justify-between px-3 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Bell className="h-5 w-5" />
+                        <span>{t('header:user.notifications')}</span>
+                      </div>
+                      <span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full font-medium">2</span>
+                    </a>
+                    
+                    <a 
+                      href="#settings" 
+                      className="flex items-center space-x-3 px-3 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <User className="h-5 w-5" />
+                      <span>{t('header:user.settings')}</span>
+                    </a>
+                  </div>
+                  
+                  {/* Sign Out Button */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <button 
+                      className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 font-medium"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <LogIn className="h-5 w-5 rotate-180" />
+                      <span>{t('header:auth.signOut')}</span>
+                    </button>
                   </div>
                 </div>
-                
-                {/* User Action Links */}
-                <a 
-                  href="#favorites" 
-                  className="flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
-                >
-                  <Heart className="h-5 w-5" />
-                  <span className="text-sm sm:text-base">{t('header:user.favorites')}</span>
-                  <span className="ml-auto bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">3</span>
-                </a>
-                
-                <a 
-                  href="#notifications" 
-                  className="flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
-                >
-                  <Bell className="h-5 w-5" />
-                  <span className="text-sm sm:text-base">{t('header:user.notifications')}</span>
-                  <span className="ml-auto bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">2</span>
-                </a>
-                
-                {/* Sign Out Button */}
-                <button className="w-full text-left flex items-center space-x-3 px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200">
-                  <LogIn className="h-5 w-5 rotate-180" />
-                  <span className="text-sm sm:text-base">{t('header:auth.signOut')}</span>
-                </button>
-              </>
-            ) : (
-              // UNAUTHENTICATED USER MOBILE MENU
-              <div className="space-y-2 pt-2 border-t border-gray-100">
-                {/* Sign In Button */}
-                <button
-                  onClick={() => {
-                    onAuthClick();
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-teal-600 text-teal-600 rounded-md hover:bg-teal-50 transition-colors duration-200 font-medium text-sm sm:text-base"
-                >
-                  <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>{t('header:auth.signIn')}</span>
-                </button>
-                
-                {/* Sign Up Button */}
-                <button
-                  onClick={() => {
-                    onAuthClick();
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-center space-x-2 bg-teal-600 text-white px-4 py-3 rounded-md hover:bg-teal-700 transition-colors duration-200 font-medium text-sm sm:text-base"
-                >
-                  <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>{t('header:auth.signUp')}</span>
-                </button>
+              ) : (
+                // UNAUTHENTICATED USER MOBILE MENU
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Get Started</h3>
+                  <div className="space-y-3">
+                    {/* Sign In Button */}
+                    <button
+                      onClick={() => {
+                        onAuthClick();
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-center space-x-2 px-4 py-3 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors duration-200 font-medium"
+                    >
+                      <LogIn className="h-5 w-5" />
+                      <span>{t('header:auth.signIn')}</span>
+                    </button>
+                    
+                    {/* Sign Up Button */}
+                    <button
+                      onClick={() => {
+                        onAuthClick();
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-center space-x-2 bg-teal-600 text-white px-4 py-3 rounded-lg hover:bg-teal-700 transition-colors duration-200 font-medium shadow-md"
+                    >
+                      <UserPlus className="h-5 w-5" />
+                      <span>{t('header:auth.signUp')}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* QUICK ACTIONS SECTION */}
+              <div className="pt-4 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <a 
+                    href="#list-property"
+                    className="flex flex-col items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Home className="h-6 w-6 text-blue-600 mb-1" />
+                    <span className="text-xs font-medium text-blue-700">List Property</span>
+                  </a>
+                  <a 
+                    href="#help"
+                    className="flex flex-col items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Phone className="h-6 w-6 text-green-600 mb-1" />
+                    <span className="text-xs font-medium text-green-700">Get Help</span>
+                  </a>
+                </div>
               </div>
-            )}
+
+              {/* FOOTER INFO */}
+              <div className="pt-4 border-t border-gray-200 text-center">
+                <p className="text-xs text-gray-500 mb-2">Made with ❤️ by</p>
+                <p className="text-sm font-semibold text-teal-600">MalixTechnologies</p>
+                <p className="text-xs text-gray-400 mt-1">Version 1.0.0</p>
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );
