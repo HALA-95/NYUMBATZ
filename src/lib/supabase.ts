@@ -25,15 +25,29 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Check if Supabase is configured
+const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
+  !supabaseUrl.includes('your-project') && 
+  !supabaseAnonKey.includes('your-anon-key');
+
+console.log('Supabase configuration:', {
+  url: supabaseUrl ? 'configured' : 'missing',
+  key: supabaseAnonKey ? 'configured' : 'missing',
+  isConfigured: isSupabaseConfigured
+});
 
 // Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseAnonKey || 'placeholder-key', 
+  {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: false
   }
 });
 

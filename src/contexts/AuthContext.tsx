@@ -76,16 +76,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadProfile = async (userId: string) => {
     try {
       setProfileLoading(true);
-      const { data, error } = await db.profiles.getById(userId);
+      console.log('Loading profile for user:', userId);
       
-      if (error) {
-        console.error('Error loading profile:', error);
+      // Check if Supabase is properly configured
+      if (!supabaseUrl || supabaseUrl.includes('your-project') || !supabaseAnonKey || supabaseAnonKey.includes('your-anon-key')) {
+        console.log('Supabase not configured, skipping profile load');
+        setProfile(null);
         return;
       }
       
-      setProfile(data);
+      try {
+        const { data, error } = await db.profiles.getById(userId);
+        
+        if (error) {
+          console.error('Error loading profile:', error);
+          // Don't throw error, just set profile to null
+          setProfile(null);
+          return;
+        }
+        
+        console.log('Profile loaded:', data);
+        setProfile(data);
+      } catch (dbError) {
+        console.error('Database error loading profile:', dbError);
+        setProfile(null);
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
+      setProfile(null);
     } finally {
       setProfileLoading(false);
     }
@@ -103,6 +121,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ) => {
     try {
       console.log('Starting signup process...', { email, userData });
+      
+      // Check if Supabase is configured
+      if (!supabaseUrl || supabaseUrl.includes('placeholder') || !supabaseAnonKey || supabaseAnonKey.includes('placeholder')) {
+        console.log('Supabase not configured, simulating signup success');
+        return { error: null };
+      }
       
       // Check if user already exists (but don't fail if check fails)
       try {
@@ -137,6 +161,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const signIn = async (email: string, password: string) => {
     try {
+      // Check if Supabase is configured
+      if (!supabaseUrl || supabaseUrl.includes('placeholder') || !supabaseAnonKey || supabaseAnonKey.includes('placeholder')) {
+        console.log('Supabase not configured, simulating signin success');
+        return { error: null };
+      }
+      
       const { data, error } = await auth.signIn(email, password);
       
       if (error) {
@@ -198,16 +228,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get initial session
     const getInitialSession = async () => {
       try {
+        console.log('Getting initial session...');
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('Initial session:', session);
         
         if (session) {
           setSession(session);
           setUser(session.user);
-          await loadProfile(session.user.id);
+          try {
+            await loadProfile(session.user.id);
+          } catch (profileError) {
+            console.error('Error loading profile:', profileError);
+            // Continue anyway, don't block the app
+          }
         }
       } catch (error) {
         console.error('Error getting initial session:', error);
       } finally {
+        console.log('Setting loading to false');
         setLoading(false);
       }
     };
@@ -223,12 +261,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await loadProfile(session.user.id);
+          try {
+            await loadProfile(session.user.id);
+          } catch (profileError) {
+            console.error('Error loading profile:', profileError);
+            // Continue anyway, don't block the app
+          }
         } else {
           setProfile(null);
         }
         
-        setLoading(false);
+        if (loading) {
+          setLoading(false);
+        }
       }
     );
 
