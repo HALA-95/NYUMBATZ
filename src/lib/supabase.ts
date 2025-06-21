@@ -584,7 +584,10 @@ export const db = {
           *,
           properties (
             title,
+    bathrooms?: number;
             city,
+    limit?: number;
+    offset?: number;
             area,
             price_monthly
           )
@@ -616,6 +619,9 @@ export const db = {
         .select()
         .single();
     }
+    if (filters?.bathrooms) {
+      query = query.gte('bathrooms', filters.bathrooms);
+    }
   }
 };
 
@@ -634,6 +640,14 @@ export const realtime = {
         { event: '*', schema: 'public', table: 'properties' }, 
         callback
       )
+    // Apply pagination
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    if (filters?.offset) {
+      query = query.range(filters.offset, (filters.offset || 0) + (filters.limit || 10) - 1);
+    }
+
       .subscribe();
   },
 

@@ -42,7 +42,7 @@ import Hero from '../components/Hero';
 import PropertyCard from '../components/PropertyCard';
 import SearchFilters from '../components/SearchFilters';
 import PropertyDetails from '../components/PropertyDetails';
-import { mockProperties } from '../data/mockData';
+import { db, isSupabaseConfigured } from '../lib/supabase';
 import { Property, SearchFilters as SearchFiltersType } from '../types';
 
 /**
@@ -55,6 +55,35 @@ const PROPERTIES_PER_PAGE = 9; // Initial load: 9 properties (3x3 grid)
 // Subsequent loads: 6 properties each time for consistent UX
 
 /**
+ * CONVERT DATABASE PROPERTY TO APP PROPERTY FORMAT
+ * 
+ * Converts the database property format to match the app's Property interface.
+ */
+const convertDbPropertyToAppProperty = (dbProperty: any): Property => {
+  return {
+    id: dbProperty.id,
+    ownerId: dbProperty.owner_id,
+    title: dbProperty.title,
+    description: dbProperty.description,
+    priceMonthly: dbProperty.price_monthly,
+    location: {
+      address: dbProperty.address || '',
+      city: dbProperty.city,
+      district: dbProperty.area,
+      neighborhood: dbProperty.area
+    },
+    bedrooms: dbProperty.bedrooms,
+    bathrooms: dbProperty.bathrooms,
+    propertyType: dbProperty.property_type as 'house' | 'apartment' | 'studio' | 'villa',
+    amenities: dbProperty.amenities || [],
+    images: dbProperty.images || ['https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg'],
+    status: dbProperty.is_available ? 'available' : 'rented' as 'available' | 'rented' | 'maintenance',
+    createdDate: dbProperty.created_at,
+    updatedDate: dbProperty.updated_at,
+    featured: false // You can add a featured column to the database later
+  };
+};
+/**
  * HOMEPAGE COMPONENT IMPLEMENTATION
  * 
  * Main page component managing property search and display functionality.
@@ -62,7 +91,7 @@ const PROPERTIES_PER_PAGE = 9; // Initial load: 9 properties (3x3 grid)
 const HomePage: React.FC = () => {
   
   // CORE DATA STATE
-  const [properties] = useState<Property[]>(mockProperties);                    // All available properties (immutable)
+  const [properties, setProperties] = useState<Property[]>([]);                // All available properties
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(mockProperties); // Properties after filtering
   const [displayedProperties, setDisplayedProperties] = useState<Property[]>([]); // Currently displayed properties
   
@@ -70,6 +99,7 @@ const HomePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);                           // Current pagination page
   const [hasMoreProperties, setHasMoreProperties] = useState(true);            // Whether more properties available
   const [isLoading, setIsLoading] = useState(false);                          // Loading state for pagination
+  const [initialLoading, setInitialLoading] = useState(true);                  // Initial data loading state
   
   // SEARCH AND FILTER STATE
   const [filters, setFilters] = useState<SearchFiltersType>({});               // Current active filters
@@ -82,6 +112,51 @@ const HomePage: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null); // Selected property for details
   const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'newest' | 'featured'>('featured'); // Sort criteria
 
+  /**
+   * LOAD PROPERTIES FROM DATABASE
+   * 
+   * Fetches properties from Supabase database or falls back to mock data.
+   */
+  const loadProperties = async () => {
+    try {
+      setInitialLoading(true);
+      
+      if (!isSupabaseConfigured) {
+        console.log('Supabase not configured, using mock data');
+        const { mockProperties } = await import('../data/mockData');
+        setProperties(mockProperties);
+        setFilteredProperties(mockProperties);
+        return;
+      }
+
+      console.log('Loading properties from database...');
+      const { data, error } = await db.properties.getAll();
+      
+      if (error) {
+        console.error('Error loading properties:', error);
+        // Fallback to mock data
+        const { mockProperties } = await import('../data/mockData');
+        setProperties(mockProperties);
+        setFilteredProperties(mockProperties);
+        return;
+      }
+      
+      if (data) {
+        const convertedProperties = data.map(convertDbPropertyToAppProperty);
+        console.log('Loaded properties from database:', convertedProperties.length);
+        setProperties(convertedProperties);
+        setFilteredProperties(convertedProperties);
+      }
+    } catch (error) {
+      console.error('Error loading properties:', error);
+      // Fallback to mock data
+      const { mockProperties } = await import('../data/mockData');
+      setProperties(mockProperties);
+      setFilteredProperties(mockProperties);
+    } finally {
+      setInitialLoading(false);
+    }
+  };
   /**
    * ADVANCED SEARCH AND FILTERING FUNCTION
    * 
@@ -293,6 +368,14 @@ const HomePage: React.FC = () => {
   };
 
   /**
+   * INITIAL DATA LOADING EFFECT
+   * 
+   * Loads properties when component mounts.
+   */
+  useEffect(() => {
+    loadProperties();
+  }, []);
+  /**
    * HEADER SEARCH EVENT LISTENER
    * 
    * Listens for search events from the header component.
@@ -317,7 +400,9 @@ const HomePage: React.FC = () => {
    * Re-applies filters when sort criteria changes.
    */
   useEffect(() => {
-    applyFilters(filters, searchQuery);
+    if (properties.length > 0) {
+      applyFilters(filters, searchQuery);
+    }
   }, [sortBy]);
 
   /**
@@ -326,7 +411,9 @@ const HomePage: React.FC = () => {
    * Updates displayed properties when filtered properties change.
    */
   useEffect(() => {
-    updateDisplayedProperties(filteredProperties, 1);
+    if (filteredProperties.length > 0) {
+      updateDisplayedProperties(filteredProperties, 1);
+    }
   }, [filteredProperties]);
 
   // PROPERTY DETAILS VIEW
@@ -339,6 +426,18 @@ const HomePage: React.FC = () => {
     );
   }
 
+  // INITIAL LOADING STATE
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading properties...</p>
+          <p className="text-sm text-gray-500 mt-2">Fetching latest listings from database...</p>
+        </div>
+      </div>
+    );
+  }
   // MAIN HOMEPAGE RENDER
   return (
     <div className="min-h-screen bg-gray-50">
