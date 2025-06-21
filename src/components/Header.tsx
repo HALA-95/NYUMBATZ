@@ -413,7 +413,7 @@ const Header: React.FC<HeaderProps> = ({
           ></div>
           
           {/* SLIDE-OUT MENU FROM LEFT */}
-          <div className="lg:hidden fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+          <div className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
             {/* MENU HEADER */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-teal-50">
               <div className="flex items-center space-x-3">
