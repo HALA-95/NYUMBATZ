@@ -38,6 +38,7 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
+import ImageUpload from '../components/ImageUpload';
 
 // Types for MVP
 interface Property {
@@ -161,18 +162,14 @@ const LandlordDashboard: React.FC = () => {
   };
 
   const handleImageAdd = () => {
-    // Simulate image upload with placeholder
-    const imageUrl = `https://images.pexels.com/photos/${Math.floor(Math.random() * 1000000)}/pexels-photo-${Math.floor(Math.random() * 1000000)}.jpeg?auto=compress&cs=tinysrgb&w=800`;
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, imageUrl]
-    }));
+    // This function is now handled by ImageUpload component
+    console.log('Image upload handled by ImageUpload component');
   };
 
-  const handleImageRemove = (index: number) => {
+  const handleImagesChange = (newImages: string[]) => {
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: newImages
     }));
   };
 
@@ -688,31 +685,12 @@ const LandlordDashboard: React.FC = () => {
 
                 {/* Images */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Property Images</label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    {formData.images.map((image, index) => (
-                      <div key={index} className="relative">
-                        <img src={image} alt={`Property ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
-                        <button
-                          type="button"
-                          onClick={() => handleImageRemove(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                    {formData.images.length < 5 && (
-                      <button
-                        type="button"
-                        onClick={handleImageAdd}
-                        className="h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-blue-500 transition-colors"
-                      >
-                        <Camera className="h-6 w-6 text-gray-400" />
-                      </button>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-500">Add up to 5 images (simulated for MVP)</p>
+                  <ImageUpload
+                    images={formData.images}
+                    onImagesChange={handleImagesChange}
+                    maxImages={5}
+                    maxSizePerImage={5}
+                  />
                 </div>
 
                 {/* Amenities */}
