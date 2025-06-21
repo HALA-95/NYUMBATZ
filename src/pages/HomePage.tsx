@@ -416,6 +416,15 @@ const HomePage: React.FC = () => {
                 <List className="h-4 w-4 lg:h-5 lg:w-5" />
               </button>
             </div>
+
+            {/* Filters Toggle - Mobile-First */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-xs sm:text-sm lg:text-base"
+            >
+              <SlidersHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="sm:inline">Filters</span>
+            </button>
           </div>
         </div>
 
