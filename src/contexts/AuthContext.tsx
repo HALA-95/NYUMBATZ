@@ -20,7 +20,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase, auth, db, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, auth, db, isSupabaseConfigured, supabaseUrl, supabaseAnonKey } from '../lib/supabase';
 import type { Database } from '../lib/supabase';
 
 // Types
