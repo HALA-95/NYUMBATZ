@@ -234,9 +234,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
     setError(null);
   };
 
-  // Import supabase for connection testing
-  const { supabase } = require('../lib/supabase');
-
   if (!isOpen) return null;
 
   return (
