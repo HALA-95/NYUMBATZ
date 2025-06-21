@@ -648,9 +648,9 @@ export const realtime = {
         { event: '*', schema: 'public', table: 'properties' }, 
         callback
       )
-    // Apply pagination
-    if (filters?.limit) {
-      query = query.limit(filters.limit);
+      .subscribe();
+  },
+
   // Subscribe to inquiries for a landlord
   subscribeToInquiries: (landlordId: string, callback: (payload: any) => void) => {
     return supabase
