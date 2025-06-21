@@ -78,7 +78,48 @@ export const amenities = [
   'Swimming Pool',    // Swimming facilities
   'Gym',              // Fitness facilities
   'Elevator',         // Lift access
-  'Furnished'         // Comes with furniture
+  'Furnished',        // Comes with furniture
+  'CCTV',            // Security cameras
+  'Kitchen',         // Modern kitchen
+  'Dining Room'      // Dining area
+];
+
+/**
+ * UTILITIES REFERENCE DATA
+ * 
+ * List of available utilities and infrastructure.
+ * Used for property utility filtering and feature highlighting.
+ */
+export const utilities = [
+  'Electricity (TANESCO)',  // National electricity grid
+  'Water (DAWASA)',         // Water authority supply
+  'Internet Ready',         // Internet infrastructure
+  'Solar Power',            // Solar energy system
+  'Backup Generator',       // Emergency power
+  'Water Pump'              // Water pumping system
+];
+
+/**
+ * NEARBY SERVICES REFERENCE DATA
+ * 
+ * List of nearby services and facilities.
+ * Used for location-based filtering and area information.
+ */
+export const nearbyServices = [
+  'Hospital',          // Medical facilities
+  'Clinic',            // Health clinic
+  'Primary School',    // Elementary education
+  'Secondary School',  // High school education
+  'University',        // Higher education
+  'Market',            // Local market
+  'Supermarket',       // Shopping center
+  'Bank',              // Banking services
+  'ATM',               // Cash machine
+  'Bus Stop',          // Public transport
+  'Taxi Stand',        // Taxi services
+  'Restaurant',        // Dining options
+  'Pharmacy',          // Medical supplies
+  'Police Station'     // Security services
 ];
 
 /**

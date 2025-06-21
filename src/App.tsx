@@ -29,6 +29,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import LandlordDashboard from './pages/LandlordDashboard';
 
 /**
  * MAIN APP COMPONENT
@@ -81,6 +82,9 @@ function App() {
           <Routes>
             {/* HOME PAGE ROUTE */}
             <Route path="/" element={<HomePage />} />
+            
+            {/* LANDLORD DASHBOARD ROUTE */}
+            <Route path="/dashboard" element={<LandlordDashboard />} />
             
             {/* FUTURE ROUTES CAN BE ADDED HERE */}
             {/* <Route path="/property/:id" element={<PropertyDetailsPage />} /> */}
