@@ -223,32 +223,48 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       {t('common:currency.tsh')}
                     </span>
                     
-                    {/* Price Range Dropdown */}
-                    <select
-                      value={searchFilters.priceRange?.max || 3000000}
-                      onChange={(e) => setSearchFilters({ 
-                        ...searchFilters, 
-                        priceRange: { ...searchFilters.priceRange, max: parseInt(e.target.value) }
-                      })}
-                      className="pl-10 sm:pl-12 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
-                    >
-                      <option value={3000000}>{t('hero:searchForm.price.anyPrice')}</option>
-                      <option value={300000}>300K</option>
-                      <option value={500000}>500K</option>
-                      <option value={750000}>750K</option>
-                      <option value={1000000}>1M</option>
-                      <option value={1500000}>1.5M</option>
-                      <option value={2000000}>2M</option>
-                      <option value={2500000}>2.5M</option>
-                      <option value={3000000}>3M+</option>
-                    </select>
+                    {/* Price Input Field */}
+                    <input
+                      type="text"
+                      placeholder={t('hero:searchForm.price.anyPrice')}
+                      value={searchFilters.priceRange?.max && searchFilters.priceRange.max < 3000000 
+                        ? searchFilters.priceRange.max.toLocaleString() 
+                        : ''
+                      }
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+                        const numericValue = value ? parseInt(value) : 3000000;
+                        setSearchFilters({ 
+                          ...searchFilters, 
+                          priceRange: { ...searchFilters.priceRange, max: numericValue }
+                        });
+                      }}
+                      className="pl-10 sm:pl-12 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base bg-white"
+                    />
                     
-                    {/* Custom Dropdown Arrow */}
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
+                    {/* Quick Price Suggestions */}
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 hidden group-hover:block">
+                      <div className="p-2 grid grid-cols-2 gap-1">
+                        {[300000, 500000, 750000, 1000000, 1500000, 2000000, 2500000, 3000000].map((price) => (
+                          <button
+                            key={price}
+                            type="button"
+                            onClick={() => setSearchFilters({ 
+                              ...searchFilters, 
+                              priceRange: { ...searchFilters.priceRange, max: price }
+                            })}
+                            className="px-2 py-1 text-xs text-gray-600 hover:bg-teal-50 hover:text-teal-700 rounded transition-colors"
+                          >
+                            {price >= 1000000 ? `${price/1000000}M` : `${price/1000}K`}
+                          </button>
+                        ))}
+                      </div>
                     </div>
+                  </div>
+                  
+                  {/* Helper Text */}
+                  <div className="mt-1 text-xs text-gray-500">
+                    {t('hero:searchForm.price.helperText')}
                   </div>
                 </div>
               </div>

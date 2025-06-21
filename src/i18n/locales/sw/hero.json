@@ -30,7 +30,8 @@
     "price": {
       "label": "Bei ya Juu (TSh)",
       "placeholder": "Bei Yoyote",
-      "anyPrice": "Bei Yoyote"
+      "anyPrice": "Bei Yoyote",
+      "helperText": "Ingiza kiasi au bofya mapendekezo hapa chini"
     },
     "searchButton": "Tafuta Mali",
     "tips": "Vidokezo vya haraka: Jaribu \"Mbeya 500k\", \"vyumba 3 Dar\", au \"ghorofa parking\""

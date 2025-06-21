@@ -30,7 +30,8 @@
     "price": {
       "label": "Max Price (TSh)",
       "placeholder": "Any Price",
-      "anyPrice": "Any Price"
+      "anyPrice": "Any Price",
+      "helperText": "Enter amount or click suggestions below"
     },
     "searchButton": "Search Properties",
     "tips": "Quick tips: Try \"Mbeya 500k\", \"3 bedrooms Dar\", or \"apartment parking\""
