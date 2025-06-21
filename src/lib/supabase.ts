@@ -39,6 +39,9 @@ console.log('Supabase configuration:', {
   isConfigured: isSupabaseConfigured
 });
 
+// Export configuration status for use in other modules
+export { isSupabaseConfigured, supabaseUrl, supabaseAnonKey };
+
 // Create Supabase client
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co', 

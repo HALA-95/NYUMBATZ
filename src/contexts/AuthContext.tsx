@@ -20,7 +20,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase, auth, db } from '../lib/supabase';
+import { supabase, auth, db, isSupabaseConfigured } from '../lib/supabase';
 import type { Database } from '../lib/supabase';
 
 // Types
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Loading profile for user:', userId);
       
       // Check if Supabase is properly configured
-      if (!supabaseUrl || supabaseUrl.includes('your-project') || !supabaseAnonKey || supabaseAnonKey.includes('your-anon-key')) {
+      if (!isSupabaseConfigured) {
         console.log('Supabase not configured, skipping profile load');
         setProfile(null);
         return;
@@ -162,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       // Check if Supabase is configured
-      if (!supabaseUrl || supabaseUrl.includes('placeholder') || !supabaseAnonKey || supabaseAnonKey.includes('placeholder')) {
+      if (!isSupabaseConfigured) {
         console.log('Supabase not configured, simulating signin success');
         return { error: null };
       }
