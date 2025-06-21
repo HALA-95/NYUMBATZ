@@ -41,6 +41,9 @@ import './i18n';
  * 
  * The i18n import above ensures that internationalization is set up
  * before the app renders, enabling immediate translation support.
+ * 
+ * The App component is wrapped with AuthProvider to provide
+ * authentication context throughout the application.
  */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -26,17 +26,26 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import LandlordDashboard from './pages/LandlordDashboard';
+import AuthModal from './components/AuthModal';
+import { useAuth } from './contexts/AuthContext';
 
 /**
  * MAIN APP COMPONENT
  * 
  * Root component that provides application structure and routing.
  */
-function App() {
+function AppContent() {
+  // Authentication state
+  const { user, profile, loading } = useAuth();
+  
+  // Modal state
+  const [showAuthModal, setShowAuthModal] = React.useState(false);
+  const [authMode, setAuthMode] = React.useState<'login' | 'register'>('login');
   
   /**
    * SEARCH EVENT HANDLER
@@ -56,47 +65,100 @@ function App() {
   /**
    * AUTHENTICATION HANDLER
    * 
-   * Placeholder for authentication functionality.
-   * In production, this would integrate with authentication provider.
+   * Opens authentication modal with specified mode.
    */
-  const handleAuthClick = () => {
-    // Handle authentication
-    console.log('Auth clicked');
-    // TODO: Integrate with authentication provider (Supabase Auth)
+  const handleAuthClick = (mode: 'login' | 'register' = 'login') => {
+    setAuthMode(mode);
+    setShowAuthModal(true);
   };
 
-  return (
-    <Router>
-      {/* MAIN APPLICATION LAYOUT */}
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        
-        {/* GLOBAL HEADER - Appears on all pages */}
-        <Header 
-          onSearch={handleSearch}           // Search functionality
-          isAuthenticated={false}          // Authentication state (TODO: make dynamic)
-          onAuthClick={handleAuthClick}    // Authentication handler
-        />
-        
-        {/* MAIN CONTENT AREA - Flexible height */}
-        <main className="flex-1">
-          <Routes>
-            {/* HOME PAGE ROUTE */}
-            <Route path="/" element={<HomePage />} />
-            
-            {/* LANDLORD DASHBOARD ROUTE */}
-            <Route path="/dashboard" element={<LandlordDashboard />} />
-            
-            {/* FUTURE ROUTES CAN BE ADDED HERE */}
-            {/* <Route path="/property/:id" element={<PropertyDetailsPage />} /> */}
-            {/* <Route path="/profile" element={<ProfilePage />} /> */}
-            {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
-          </Routes>
-        </main>
-        
-        {/* GLOBAL FOOTER - Appears on all pages */}
-        <Footer />
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
-    </Router>
+    );
+  }
+
+  return (
+    <>
+      <Router>
+        {/* MAIN APPLICATION LAYOUT */}
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          
+          {/* GLOBAL HEADER - Appears on all pages */}
+          <Header 
+            onSearch={handleSearch}           // Search functionality
+            isAuthenticated={!!user}          // Authentication state
+            onAuthClick={handleAuthClick}     // Authentication handler
+            user={user}                       // User data
+            profile={profile}                 // Profile data
+          />
+          
+          {/* MAIN CONTENT AREA - Flexible height */}
+          <main className="flex-1">
+            <Routes>
+              {/* HOME PAGE ROUTE */}
+              <Route path="/" element={<HomePage />} />
+              
+              {/* LANDLORD DASHBOARD ROUTE - Protected */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  user && profile?.user_role === 'landlord' ? (
+                    <LandlordDashboard />
+                  ) : (
+                    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                      <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Restricted</h2>
+                        <p className="text-gray-600 mb-6">You need to be logged in as a landlord to access this page.</p>
+                        <button
+                          onClick={() => handleAuthClick('login')}
+                          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Sign In as Landlord
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
+              />
+              
+              {/* FUTURE ROUTES CAN BE ADDED HERE */}
+              {/* <Route path="/property/:id" element={<PropertyDetailsPage />} /> */}
+              {/* <Route path="/profile" element={<ProfilePage />} /> */}
+            </Routes>
+          </main>
+          
+          {/* GLOBAL FOOTER - Appears on all pages */}
+          <Footer />
+        </div>
+      </Router>
+
+      {/* AUTHENTICATION MODAL */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode={authMode}
+      />
+    </>
+  );
+}
+
+/**
+ * MAIN APP COMPONENT WITH PROVIDERS
+ * 
+ * Wraps the application with necessary providers.
+ */
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
