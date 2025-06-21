@@ -123,7 +123,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
     return true;
   };
 
-  // Handle form submission
+  // Handle form submission with better error handling
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -146,8 +146,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
             setError('Invalid email or password. Please check your credentials and try again.');
           } else if (error.message?.includes('Email not confirmed')) {
             setError('Please check your email and click the confirmation link before signing in.');
-          } else if (error.message?.includes('Too many requests')) {
-            setError('Too many login attempts. Please wait a moment and try again.');
           } else {
             setError(error.message || 'Failed to sign in. Please try again.');
           }
@@ -288,7 +286,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                       type="text"
                       name="fullName"
                       value={formData.fullName}
-                      onChange={handleNameChange}
+                      onChange={handleInputChange}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter your full name"
                       required
@@ -307,7 +305,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                       type="tel"
                       name="phoneNumber"
                       value={formData.phoneNumber}
-                      onChange={handlePhoneChange}
+                      onChange={handleInputChange}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="e.g., 0712345678"
                       required

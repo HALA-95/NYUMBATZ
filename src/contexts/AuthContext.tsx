@@ -137,18 +137,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('AuthContext signIn called for:', email);
       const { data, error } = await auth.signIn(email, password);
       
       if (error) {
-        console.error('AuthContext signIn error:', error);
         return { error };
       }
       
-      console.log('AuthContext signIn successful');
       return { error: null };
     } catch (error) {
-      console.error('AuthContext signIn catch error:', error);
       return { error };
     }
   };
