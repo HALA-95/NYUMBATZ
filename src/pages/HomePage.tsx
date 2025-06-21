@@ -44,6 +44,7 @@ import SearchFilters from '../components/SearchFilters';
 import PropertyDetails from '../components/PropertyDetails';
 import { db, isSupabaseConfigured } from '../lib/supabase';
 import { Property, SearchFilters as SearchFiltersType } from '../types';
+import { mockProperties } from '../data/mockData';
 
 /**
  * PAGINATION CONFIGURATION
