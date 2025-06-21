@@ -110,18 +110,28 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       if (mode === 'login') {
+        console.log('Attempting login...', formData.email);
         const { error } = await signIn(formData.email, formData.password);
         
         if (error) {
+          console.error('Login error:', error);
           setError(error.message || 'Failed to sign in');
         } else {
           setSuccess('Successfully signed in!');
           setTimeout(() => onClose(), 1000);
         }
       } else {
+        console.log('Attempting signup...', { 
+          email: formData.email, 
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+          userRole: formData.userRole 
+        });
+        
         const { error } = await signUp(formData.email, formData.password, {
           fullName: formData.fullName,
           phoneNumber: formData.phoneNumber,
@@ -129,20 +139,293 @@ const AuthModal: React.FC<AuthModalProps> = ({
         });
         
         if (error) {
-          setError(error.message || 'Failed to create account');
+          console.error('Signup error:', error);
+          
+          // Handle specific error cases
+          if (error.message?.includes('already registered')) {
+            setError('An account with this email already exists. Please try signing in instead.');
+          } else if (error.message?.includes('Invalid email')) {
+            setError('Please enter a valid email address.');
+          } else if (error.message?.includes('Password')) {
+            setError('Password must be at least 6 characters long.');
+          } else if (error.message?.includes('rate limit')) {
+            setError('Too many attempts. Please wait a moment and try again.');
+          } else {
+            setError(error.message || 'Failed to create account. Please try again.');
+          }
         } else {
-          setSuccess('Account created successfully! Please check your email to verify your account.');
+          setSuccess('Account created successfully! You can now sign in.');
+          // Switch to login mode after successful signup
           setTimeout(() => {
             setMode('login');
             setSuccess(null);
-          }, 3000);
+            setFormData(prev => ({ ...prev, password: '' })); // Clear password but keep email
+          }, 2000);
         }
       }
     } catch (error: any) {
-      setError(error.message || 'An unexpected error occurred');
+      console.error('Form submission error:', error);
+      setError(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Test connection function
+  const testConnection = async () => {
+    try {
+      console.log('Testing Supabase connection...');
+      const { data, error } = await supabase.from('profiles').select('count').limit(1);
+      if (error) {
+        console.error('Connection test failed:', error);
+        setError('Database connection failed. Please check your internet connection.');
+      } else {
+        console.log('Connection test successful:', data);
+      }
+    } catch (err) {
+      console.error('Connection test error:', err);
+      setError('Unable to connect to the server. Please try again later.');
+    }
+  };
+
+  // Add connection test on modal open
+  React.useEffect(() => {
+    if (isOpen) {
+      testConnection();
+    }
+  }, [isOpen]);
+
+  // Validate email format
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Enhanced form validation
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError('Email and password are required');
+      return false;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
+    }
+
+    if (mode === 'register') {
+      if (!formData.fullName.trim()) {
+        setError('Full name is required');
+        return false;
+      }
+      if (formData.fullName.trim().length < 2) {
+        setError('Full name must be at least 2 characters');
+        return false;
+      }
+      if (!formData.phoneNumber.trim()) {
+        setError('Phone number is required');
+        return false;
+      }
+      // Basic phone number validation for Tanzania
+      const phoneRegex = /^(\+255|0)[67]\d{8}$/;
+      if (!phoneRegex.test(formData.phoneNumber.replace(/\s/g, ''))) {
+        setError('Please enter a valid Tanzanian phone number (e.g., 0712345678)');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  // Handle form submission with better error handling
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      if (mode === 'login') {
+        console.log('Attempting login...', formData.email);
+        const { error } = await signIn(formData.email, formData.password);
+        
+        if (error) {
+          console.error('Login error:', error);
+          
+          // Handle specific login errors
+          if (error.message?.includes('Invalid login credentials')) {
+            setError('Invalid email or password. Please check your credentials and try again.');
+          } else if (error.message?.includes('Email not confirmed')) {
+            setError('Please check your email and click the confirmation link before signing in.');
+          } else {
+            setError(error.message || 'Failed to sign in. Please try again.');
+          }
+        } else {
+          setSuccess('Successfully signed in!');
+          setTimeout(() => onClose(), 1000);
+        }
+      } else {
+        console.log('Attempting signup...', { 
+          email: formData.email, 
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+          userRole: formData.userRole 
+        });
+        
+        const { error } = await signUp(formData.email, formData.password, {
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+          userRole: formData.userRole
+        });
+        
+        if (error) {
+          console.error('Signup error:', error);
+          
+          // Handle specific error cases
+          if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+            setError('An account with this email already exists. Please try signing in instead.');
+          } else if (error.message?.includes('Invalid email')) {
+            setError('Please enter a valid email address.');
+          } else if (error.message?.includes('Password')) {
+            setError('Password must be at least 6 characters long.');
+          } else if (error.message?.includes('rate limit')) {
+            setError('Too many attempts. Please wait a moment and try again.');
+          } else if (error.message?.includes('network')) {
+            setError('Network error. Please check your internet connection and try again.');
+          } else {
+            setError(error.message || 'Failed to create account. Please try again.');
+          }
+        } else {
+          setSuccess('Account created successfully! You can now sign in.');
+          // Switch to login mode after successful signup
+          setTimeout(() => {
+            setMode('login');
+            setSuccess(null);
+            setFormData(prev => ({ ...prev, password: '' })); // Clear password but keep email
+          }, 2000);
+        }
+      }
+    } catch (error: any) {
+      console.error('Form submission error:', error);
+      if (error.message?.includes('fetch')) {
+        setError('Unable to connect to the server. Please check your internet connection.');
+      } else {
+        setError(error.message || 'An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format phone number as user types
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    
+    // Add formatting
+    if (value.startsWith('255')) {
+      value = '+' + value;
+    } else if (value.startsWith('0')) {
+      // Keep as is
+    } else if (value.length > 0) {
+      value = '0' + value;
+    }
+    
+    setFormData(prev => ({ ...prev, phoneNumber: value }));
+    setError(null);
+  };
+
+  // Handle name input (capitalize first letters)
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    setFormData(prev => ({ ...prev, fullName: value }));
+    setError(null);
+  };
+
+  // Import supabase for connection testing
+  const { supabase } = require('../lib/supabase');
+
+  // Test connection function
+  const testConnection = async () => {
+    try {
+      console.log('Testing Supabase connection...');
+      const { data, error } = await supabase.from('profiles').select('count').limit(1);
+      if (error) {
+        console.error('Connection test failed:', error);
+          setError(error.message || 'Failed to create account');
+        } else {
+        console.log('Connection test successful');
+        }
+    } catch (err) {
+      console.error('Connection test error:', err);
+    }
+  };
+
+  // Add connection test on modal open
+  React.useEffect(() => {
+    if (isOpen) {
+      testConnection();
+    }
+  }, [isOpen]);
+
+  // Debug environment variables
+  React.useEffect(() => {
+    console.log('Environment check:', {
+      supabaseUrl: import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Missing',
+      supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing'
+    });
+  }, []);
+
+  // Enhanced form validation
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError('Email and password are required');
+      return false;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
+    }
+
+    if (mode === 'register') {
+      if (!formData.fullName.trim()) {
+        setError('Full name is required');
+        return false;
+      }
+      if (formData.fullName.trim().length < 2) {
+        setError('Full name must be at least 2 characters');
+        return false;
+      }
+      if (!formData.phoneNumber.trim()) {
+        setError('Phone number is required');
+        return false;
+      }
+      // Basic phone number validation for Tanzania
+      const phoneRegex = /^(\+255|0)[67]\d{8}$/;
+      if (!phoneRegex.test(formData.phoneNumber.replace(/\s/g, ''))) {
+        setError('Please enter a valid Tanzanian phone number (e.g., 0712345678)');
+        return false;
+      }
+    }
+
+    return true;
   };
 
   if (!isOpen) return null;

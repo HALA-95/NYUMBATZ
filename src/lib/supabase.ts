@@ -201,10 +201,40 @@ export interface Database {
 export const auth = {
   // Sign up new user
   signUp: async (email: string, password: string, userData: { fullName: string; phoneNumber: string; userRole: 'tenant' | 'landlord' }) => {
-    const { data, error } = await supabase.auth.signUp({
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: userData.fullName,
+            phone_number: userData.phoneNumber,
+            user_role: userData.userRole
+          }
+        }
+      });
+      
+      if (error) {
+        console.error('Supabase signup error:', error);
+        return { data, error };
+      }
+      
+      console.log('Signup successful:', data);
+      return { data, error: null };
+    } catch (err) {
+      console.error('Signup catch error:', err);
+      return { data: null, error: err };
+    }
+  },
+
+  // Sign up new user (alternative method without email confirmation)
+  signUpDirect: async (email: string, password: string, userData: { fullName: string; phoneNumber: string; userRole: 'tenant' | 'landlord' }) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: undefined, // Disable email confirmation
         data: {
           full_name: userData.fullName,
           phone_number: userData.phoneNumber,
@@ -212,7 +242,137 @@ export const auth = {
         }
       }
     });
+      
+      if (error) {
+        console.error('Supabase signup error:', error);
+        return { data, error };
+      }
+      
+      console.log('Signup successful:', data);
+      return { data, error: null };
+    } catch (err) {
+      console.error('Signup catch error:', err);
+      return { data: null, error: err };
+    }
+  },
+
+  // Manual profile creation (fallback)
+  createProfile: async (userId: string, userData: { fullName: string; email: string; phoneNumber: string; userRole: 'tenant' | 'landlord' }) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          full_name: userData.fullName,
+          email: userData.email,
+          phone_number: userData.phoneNumber,
+          user_role: userData.userRole,
+          is_verified: false
+        })
+        .select()
+        .single();
+      
+      return { data, error };
+    } catch (err) {
+      console.error('Profile creation error:', err);
+      return { data: null, error: err };
+    }
+  },
+
+  // Check if user exists
+  checkUserExists: async (email: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .single();
+      
+      return { exists: !!data, error };
+    } catch (err) {
+      return { exists: false, error: err };
+    }
+  },
+
+  // Get user by email
+  getUserByEmail: async (email: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .single();
+      
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // Reset password
+  resetPassword: async (email: string) => {
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // Update password
+  updatePassword: async (password: string) => {
+    try {
+      const { data, error } = await supabase.auth.updateUser({ password });
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // Verify email
+  verifyEmail: async (token: string, type: string) => {
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: type as any
+      });
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // Resend verification email
+  resendVerification: async (email: string) => {
+    try {
+      const { data, error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email
+      });
+      return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
+  },
+
+  // Get auth status
+  getAuthStatus: async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      return { user, error };
+    } catch (err) {
+      return { user: null, error: err };
+    }
+  },
+
+  // Refresh session
+  refreshSession: async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
     return { data, error };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   },
 
   // Sign in user
