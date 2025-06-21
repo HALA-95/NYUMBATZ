@@ -16,7 +16,8 @@ import {
   Wifi,
   Home,
   Star,
-  Flag
+  Flag,
+  MessageCircle
 } from 'lucide-react';
 import { Property } from '../types';
 
@@ -28,10 +29,6 @@ interface PropertyDetailsProps {
 const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property, onBack }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [showViewingForm, setShowViewingForm] = useState(false);
-  const [viewingDate, setViewingDate] = useState('');
-  const [viewingTime, setViewingTime] = useState('');
-  const [contactMessage, setContactMessage] = useState('');
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-TZ', {
@@ -57,13 +54,14 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property, onBack }) =
     }
   };
 
-  const handleViewingRequest = () => {
-    if (viewingDate && viewingTime) {
-      alert('Viewing request submitted! / Ombi la kuona limetumwa!');
-      setShowViewingForm(false);
-      setViewingDate('');
-      setViewingTime('');
-    }
+  const handleWhatsAppContact = () => {
+    const message = `Hi, I'm interested in your property: ${property.title}. Location: ${property.location.address}, ${property.location.city}. Price: ${formatPrice(property.priceMonthly)}/month. Can we discuss more details?`;
+    const whatsappUrl = `https://wa.me/255712345678?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handlePhoneCall = () => {
+    window.location.href = 'tel:+255712345678';
   };
 
   return (
@@ -245,77 +243,23 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property, onBack }) =
               </div>
 
               <div className="space-y-3 sm:space-y-4">
+                {/* WhatsApp Contact Button */}
                 <button
-                  onClick={() => setShowViewingForm(!showViewingForm)}
-                  className="w-full bg-blue-600 text-white py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
+                  onClick={handleWhatsAppContact}
+                  className="w-full bg-green-600 text-white py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base shadow-md"
                 >
-                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>Request Viewing</span>
+                  <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span>WhatsApp Owner</span>
                 </button>
 
-                <button className="w-full bg-teal-600 text-white py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:bg-teal-700 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base">
+                {/* Phone Call Button */}
+                <button
+                  onClick={handlePhoneCall}
+                  className="w-full bg-blue-600 text-white py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base shadow-md"
+                >
                   <Phone className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>Contact Owner</span>
+                  <span>Call Owner</span>
                 </button>
-
-                {/* Viewing Request Form - Mobile-Optimized */}
-                {showViewingForm && (
-                  <div className="border-t border-gray-200 pt-3 sm:pt-4 space-y-3 sm:space-y-4">
-                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Request Viewing</h3>
-                    
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Preferred Date
-                      </label>
-                      <input
-                        type="date"
-                        value={viewingDate}
-                        onChange={(e) => setViewingDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Preferred Time
-                      </label>
-                      <select
-                        value={viewingTime}
-                        onChange={(e) => setViewingTime(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                      >
-                        <option value="">Select time</option>
-                        <option value="09:00">9:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Message (Optional)
-                      </label>
-                      <textarea
-                        value={contactMessage}
-                        onChange={(e) => setContactMessage(e.target.value)}
-                        placeholder="Any specific questions or requirements..."
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base resize-none"
-                      />
-                    </div>
-
-                    <button
-                      onClick={handleViewingRequest}
-                      disabled={!viewingDate || !viewingTime}
-                      className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
-                    >
-                      Submit Request
-                    </button>
-                  </div>
-                )}
               </div>
 
               {/* Property Stats - Responsive */}
@@ -349,13 +293,19 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property, onBack }) =
               </div>
               
               <div className="space-y-2 sm:space-y-3">
-                <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base">
+                <button 
+                  onClick={handlePhoneCall}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                >
                   <Phone className="h-4 w-4" />
                   <span>Call Owner</span>
                 </button>
-                <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base">
-                  <Mail className="h-4 w-4" />
-                  <span>Send Message</span>
+                <button 
+                  onClick={handleWhatsAppContact}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>WhatsApp</span>
                 </button>
               </div>
             </div>
