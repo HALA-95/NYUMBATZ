@@ -213,7 +213,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                 </div>
 
                 {/* PRICE RANGE FILTER */}
-                <div className="relative">
+                <div className="relative group">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 text-left">
                     {t('hero:searchForm.price.label')}
                   </label>
@@ -243,7 +243,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                     />
                     
                     {/* Quick Price Suggestions */}
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 hidden group-hover:block">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                       <div className="p-2 grid grid-cols-2 gap-1">
                         {[300000, 500000, 750000, 1000000, 1500000, 2000000, 2500000, 3000000].map((price) => (
                           <button
@@ -255,7 +255,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                             })}
                             className="px-2 py-1 text-xs text-gray-600 hover:bg-teal-50 hover:text-teal-700 rounded transition-colors"
                           >
-                            {price >= 1000000 ? `${price/1000000}M` : `${price/1000}K`}
+                            {price >= 1000000 ? `${price/1000000}M` : `${price/1000}K`}{price === 3000000 ? '+' : ''}
                           </button>
                         ))}
                       </div>
