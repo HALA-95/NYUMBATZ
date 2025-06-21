@@ -447,6 +447,9 @@ export const db = {
       priceMax?: number;
       propertyType?: string;
       bedrooms?: number;
+      bathrooms?: number;
+      limit?: number;
+      offset?: number;
       search?: string;
     }) => {
       let query = supabase
@@ -478,8 +481,19 @@ export const db = {
       if (filters?.bedrooms) {
         query = query.gte('bedrooms', filters.bedrooms);
       }
+      if (filters?.bathrooms) {
+        query = query.gte('bathrooms', filters.bathrooms);
+      }
       if (filters?.search) {
         query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,city.ilike.%${filters.search}%,area.ilike.%${filters.search}%`);
+      }
+
+      // Apply pagination
+      if (filters?.limit) {
+        query = query.limit(filters.limit);
+      }
+      if (filters?.offset) {
+        query = query.range(filters.offset, (filters.offset || 0) + (filters.limit || 10) - 1);
       }
 
       return query;
@@ -584,10 +598,7 @@ export const db = {
           *,
           properties (
             title,
-    bathrooms?: number;
             city,
-    limit?: number;
-    offset?: number;
             area,
             price_monthly
           )
@@ -619,9 +630,6 @@ export const db = {
         .select()
         .single();
     }
-    if (filters?.bathrooms) {
-      query = query.gte('bathrooms', filters.bathrooms);
-    }
   }
 };
 
@@ -643,14 +651,6 @@ export const realtime = {
     // Apply pagination
     if (filters?.limit) {
       query = query.limit(filters.limit);
-    }
-    if (filters?.offset) {
-      query = query.range(filters.offset, (filters.offset || 0) + (filters.limit || 10) - 1);
-    }
-
-      .subscribe();
-  },
-
   // Subscribe to inquiries for a landlord
   subscribeToInquiries: (landlordId: string, callback: (payload: any) => void) => {
     return supabase
