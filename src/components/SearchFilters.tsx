@@ -147,6 +147,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
               {type.value === 'apartment' && <Building className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />}
               {type.value === 'studio' && <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />}
               {type.value === 'villa' && <Home className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />}
+              {type.value === 'room' && <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />}
               <span>{type.label}</span>
             </button>
           ))}

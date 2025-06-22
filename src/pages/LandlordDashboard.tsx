@@ -584,6 +584,8 @@ const LandlordDashboard: React.FC = () => {
                       <option value="house">House</option>
                       <option value="apartment">Apartment</option>
                       <option value="room">Room</option>
+                      <option value="studio">Studio</option>
+                      <option value="villa">Villa</option>
                     </select>
                   </div>
                   

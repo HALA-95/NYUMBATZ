@@ -169,6 +169,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                       <option value="apartment">{t('hero:searchForm.propertyType.apartment')}</option>
                       <option value="studio">{t('hero:searchForm.propertyType.studio')}</option>
                       <option value="villa">{t('hero:searchForm.propertyType.villa')}</option>
+                      <option value="room">{t('hero:searchForm.propertyType.room')}</option>
                     </select>
                     
                     {/* Custom Dropdown Arrow */}
