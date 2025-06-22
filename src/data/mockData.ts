@@ -54,7 +54,8 @@ export const propertyTypes = [
   { value: 'house', label: 'Nyumba (House)' },           // Standalone houses
   { value: 'apartment', label: 'Ghorofa (Apartment)' },  // Apartment units
   { value: 'studio', label: 'Studio' },                  // Studio apartments
-  { value: 'villa', label: 'Villa' }                     // Luxury villas
+  { value: 'villa', label: 'Villa' } ,// Luxury villas
+  {value:'room', label: 'room'}
 ];
 
 /**
