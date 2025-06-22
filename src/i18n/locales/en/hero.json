@@ -18,7 +18,8 @@
       "house": "House",
       "apartment": "Apartment",
       "studio": "Studio",
-      "villa": "Villa"
+      "villa": "Villa",
+      "room": "Room"
     },
     "bedrooms": {
       "label": "Bedrooms",

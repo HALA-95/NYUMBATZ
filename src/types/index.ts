@@ -51,7 +51,7 @@ export interface Property {
   location: Location;           // Geographic location data
   bedrooms: number;             // Number of bedrooms
   bathrooms: number;            // Number of bathrooms
-  propertyType: 'house' | 'apartment' | 'studio' | 'villa';  // Property category
+  propertyType: 'house' | 'apartment' | 'studio' | 'villa' | 'room';  // Property category
   amenities: string[];          // Array of available amenities/features
   images: string[];             // Array of image URLs (first image is primary)
   status: 'available' | 'rented' | 'maintenance';  // Current property status

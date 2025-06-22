@@ -47,7 +47,8 @@
     "house": "House",
     "apartment": "Apartment",
     "studio": "Studio",
-    "villa": "Villa"
+    "villa": "Villa",
+    "room": "Room"
   },
   "amenities": {
     "parking": "Parking",
