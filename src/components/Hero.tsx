@@ -59,7 +59,7 @@ interface HeroProps {
  * 
  * Main landing section with search functionality, value proposition, and internationalization.
  */
-const Hero: React.FC<HeroProps> = ({ onSearch }) => {
+export default function Hero({ onSearch }: HeroProps) {
   
   // INTERNATIONALIZATION HOOKS
   const { t } = useTranslation(['hero', 'common']);
@@ -333,6 +333,3 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
       </div>
     </div>
   );
-};
-
-export default Hero;
