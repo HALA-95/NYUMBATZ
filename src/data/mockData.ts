@@ -56,7 +56,6 @@ export const propertyTypes = [
   { value: 'studio', label: 'Studio' },                  // Studio apartments
   { value: 'villa', label: 'Villa' },                    // Luxury villas
   { value: 'room', label: 'Chumba (Room)' }              // Single rooms
-  {value:'room', label: 'room'}
 ];
 
 /**
