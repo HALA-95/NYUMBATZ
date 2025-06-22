@@ -127,19 +127,11 @@ const HomePage: React.FC = () => {
         const { mockProperties } = await import('../data/mockData');
         setProperties(mockProperties);
         setFilteredProperties(mockProperties);
-        setInitialLoading(false);
         return;
       }
 
       console.log('Loading properties from database...');
-      
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database request timeout')), 10000)
-      );
-      
-      const dbPromise = db.properties.getAll();
-      const { data, error } = await Promise.race([dbPromise, timeoutPromise]) as any;
+      const { data, error } = await db.properties.getAll();
       
       if (error) {
         console.error('Error loading properties:', error);
@@ -147,7 +139,6 @@ const HomePage: React.FC = () => {
         const { mockProperties } = await import('../data/mockData');
         setProperties(mockProperties);
         setFilteredProperties(mockProperties);
-        setInitialLoading(false);
         return;
       }
       
@@ -156,12 +147,6 @@ const HomePage: React.FC = () => {
         console.log('Loaded properties from database:', convertedProperties.length);
         setProperties(convertedProperties);
         setFilteredProperties(convertedProperties);
-      } else {
-        // No data returned, use mock data
-        console.log('No data returned from database, using mock data');
-        const { mockProperties } = await import('../data/mockData');
-        setProperties(mockProperties);
-        setFilteredProperties(mockProperties);
       }
     } catch (error) {
       console.error('Error loading properties:', error);

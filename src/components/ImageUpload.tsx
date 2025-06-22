@@ -22,29 +22,54 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { Camera, Upload, X, AlertCircle, Check, Image as ImageIcon } from 'lucide-react';
-import { uploadPropertyImage, validateImageFile, fileToBase64 } from '../lib/storage';
-import { useAuth } from '../contexts/AuthContext';
 
 interface ImageUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
-  maxSizePerImage?: number;
-  propertyId?: string; // Add this for Supabase storage
+  maxSizePerImage?: number; // in MB
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
   images,
   onImagesChange,
   maxImages = 5,
-  maxSizePerImage = 5,
-  propertyId
+  maxSizePerImage = 5
 }) => {
-  const { user } = useAuth();
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Validate file before upload
+  const validateFile = (file: File): string | null => {
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      return 'Please select only image files (JPG, PNG, GIF, etc.)';
+    }
+
+    // Check file size
+    if (file.size > maxSizePerImage * 1024 * 1024) {
+      return `Image size should be less than ${maxSizePerImage}MB`;
+    }
+
+    // Check total images limit
+    if (images.length >= maxImages) {
+      return `Maximum ${maxImages} images allowed`;
+    }
+
+    return null;
+  };
+
+  // Convert file to base64 data URL
+  const fileToDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
   // Handle file upload
   const handleFileUpload = useCallback(async (files: FileList) => {
@@ -53,23 +78,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      const error = validateFile(file);
       
-      // Check total images limit
-      if (images.length >= maxImages) {
-        newErrors.push(`Maximum ${maxImages} images allowed`);
-        continue;
-      }
-      
-      // Validate file
-      const validation = validateImageFile(file);
-      if (!validation.valid) {
-        newErrors.push(`${file.name}: ${validation.error}`);
-        continue;
-      }
-      
-      // Check file size
-      if (file.size > maxSizePerImage * 1024 * 1024) {
-        newErrors.push(`${file.name}: Image size should be less than ${maxSizePerImage}MB`);
+      if (error) {
+        newErrors.push(`${file.name}: ${error}`);
         continue;
       }
 
@@ -78,30 +90,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         const fileId = `${file.name}-${Date.now()}`;
         setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
 
-        let imageUrl: string;
-
-        if (propertyId && user) {
-          // Upload to Supabase Storage
-          try {
-            const result = await uploadPropertyImage(file, propertyId, user.id);
-            imageUrl = result.url;
-          } catch (uploadError) {
-            console.error('Upload to storage failed:', uploadError);
-            // Fallback to base64 for preview
-            imageUrl = await fileToBase64(file);
-          }
-        } else {
-          // Convert to base64 for preview (when no propertyId or user)
-          imageUrl = await fileToBase64(file);
-        }
-
-        // Simulate upload progress for better UX
-        for (let progress = 0; progress <= 100; progress += 25) {
+        // Convert to data URL
+        const dataURL = await fileToDataURL(file);
+        
+        // Simulate upload progress
+        for (let progress = 0; progress <= 100; progress += 20) {
           setUploadProgress(prev => ({ ...prev, [fileId]: progress }));
-          await new Promise(resolve => setTimeout(resolve, 150));
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        newImages.push(imageUrl);
+        newImages.push(dataURL);
         
         // Remove progress indicator
         setUploadProgress(prev => {
@@ -111,8 +109,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         });
 
       } catch (error) {
-        console.error('Upload error:', error);
-        newErrors.push(`${file.name}: ${error instanceof Error ? error.message : 'Failed to upload'}`);
+        newErrors.push(`${file.name}: Failed to upload`);
       }
     }
 
@@ -317,12 +314,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="text-sm font-medium text-blue-800 mb-2">📸 Photo Tips for Better Listings:</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Take photos in good lighting (natural light works best)</li>
-          <li>• Show different rooms and angles of the property</li>
-          <li>• Include both exterior and interior shots</li>
-          <li>• Ensure rooms are clean and well-organized</li>
-          <li>• The first image will be used as the main listing photo</li>
-          <li>• {propertyId && user ? 'Images will be stored securely in the cloud' : 'Images will be stored locally for preview'}</li>
+          <li>• Take photos in good lighting (natural light is best)</li>
+          <li>• Show different rooms and angles</li>
+          <li>• Include exterior and interior shots</li>
+          <li>• Make sure rooms are clean and tidy</li>
+          <li>• The first image will be used as the main photo</li>
         </ul>
       </div>
     </div>

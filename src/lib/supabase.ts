@@ -31,16 +31,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // Check if Supabase is configured
 const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
   !supabaseUrl.includes('your-project') && 
-  !supabaseAnonKey.includes('your-anon-key') &&
-  !supabaseUrl.includes('placeholder') &&
-  !supabaseAnonKey.includes('placeholder');
+  !supabaseAnonKey.includes('your-anon-key');
 
 console.log('Supabase configuration:', {
   url: supabaseUrl ? 'configured' : 'missing',
   key: supabaseAnonKey ? 'configured' : 'missing',
-  isConfigured: isSupabaseConfigured,
-  urlValid: supabaseUrl && !supabaseUrl.includes('placeholder') && !supabaseUrl.includes('your-project'),
-  keyValid: supabaseAnonKey && !supabaseAnonKey.includes('placeholder') && !supabaseAnonKey.includes('your-anon-key')
+  isConfigured: isSupabaseConfigured
 });
 
 // Export configuration status for use in other modules

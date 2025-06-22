@@ -39,7 +39,6 @@ import {
   AlertCircle
 } from 'lucide-react';
 import ImageUpload from '../components/ImageUpload';
-import { useAuth } from '../contexts/AuthContext';
 
 // Types for MVP
 interface Property {
@@ -74,7 +73,6 @@ interface Contact {
 }
 
 const LandlordDashboard: React.FC = () => {
-  const { user } = useAuth();
   // State Management
   const [properties, setProperties] = useState<Property[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -692,7 +690,6 @@ const LandlordDashboard: React.FC = () => {
                     onImagesChange={handleImagesChange}
                     maxImages={5}
                     maxSizePerImage={5}
-                    propertyId={editingProperty?.id}
                   />
                 </div>
 
