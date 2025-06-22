@@ -333,3 +333,4 @@ export default function Hero({ onSearch }: HeroProps) {
       </div>
     </div>
   );
+}
