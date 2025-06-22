@@ -1,12 +1,27 @@
 /**
- * AUTHENTICATION MODAL COMPONENT - MOCK VERSION
+ * AUTHENTICATION MODAL COMPONENT
  * 
- * Simplified authentication modal that doesn't use Supabase.
- * Provides mock authentication for development purposes.
+ * Modal component for user login and registration.
+ * Provides a clean, mobile-friendly interface for authentication.
+ * 
+ * KEY FEATURES:
+ * - Login and registration forms
+ * - Role selection (tenant/landlord)
+ * - Form validation
+ * - Error handling
+ * - Loading states
+ * - Mobile-responsive design
+ * 
+ * MVP FOCUS:
+ * - Simple email/password authentication
+ * - Clear user role selection
+ * - Good user experience
+ * - Proper error messages
  */
 
 import React, { useState } from 'react';
 import { X, Mail, Lock, User, Phone, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -35,6 +50,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
     userRole: 'tenant' as 'tenant' | 'landlord'
   });
 
+  // Auth context
+  const { signIn, signUp } = useAuth();
+
   // Reset form when modal opens/closes
   React.useEffect(() => {
     if (isOpen) {
@@ -55,7 +73,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setError(null);
+    setError(null); // Clear error when user types
   };
 
   // Validate email format
@@ -94,12 +112,18 @@ const AuthModal: React.FC<AuthModalProps> = ({
         setError('Phone number is required');
         return false;
       }
+      // Basic phone number validation for Tanzania
+      const phoneRegex = /^(\+255|0)[67]\d{8}$/;
+      if (!phoneRegex.test(formData.phoneNumber.replace(/\s/g, ''))) {
+        setError('Please enter a valid Tanzanian phone number (e.g., 0712345678)');
+        return false;
+      }
     }
 
     return true;
   };
 
-  // Handle form submission
+  // Handle form submission with better error handling
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -110,32 +134,104 @@ const AuthModal: React.FC<AuthModalProps> = ({
     setSuccess(null);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       if (mode === 'login') {
-        console.log('Mock login:', formData.email);
-        setSuccess('Successfully signed in! (Mock authentication)');
-        setTimeout(() => onClose(), 1500);
+        console.log('Attempting login...', formData.email);
+        const { error } = await signIn(formData.email, formData.password);
+        
+        if (error) {
+          console.error('Login error:', error);
+          
+          // Handle specific login errors
+          if (error.message?.includes('Invalid login credentials')) {
+            setError('Invalid email or password. Please check your credentials and try again.');
+          } else if (error.message?.includes('Email not confirmed')) {
+            setError('Please check your email and click the confirmation link before signing in.');
+          } else {
+            setError(error.message || 'Failed to sign in. Please try again.');
+          }
+        } else {
+          setSuccess('Successfully signed in!');
+          setTimeout(() => onClose(), 1000);
+        }
       } else {
-        console.log('Mock signup:', { 
+        console.log('Attempting signup...', { 
           email: formData.email, 
           fullName: formData.fullName,
           phoneNumber: formData.phoneNumber,
           userRole: formData.userRole 
         });
-        setSuccess('Account created successfully! (Mock authentication)');
-        setTimeout(() => {
-          setMode('login');
-          setSuccess(null);
-          setFormData(prev => ({ ...prev, password: '' }));
-        }, 2000);
+        
+        const { error } = await signUp(formData.email, formData.password, {
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+          userRole: formData.userRole
+        });
+        
+        if (error) {
+          console.error('Signup error:', error);
+          
+          // Handle specific error cases
+          if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+            setError('An account with this email already exists. Please try signing in instead.');
+          } else if (error.message?.includes('Invalid email')) {
+            setError('Please enter a valid email address.');
+          } else if (error.message?.includes('Password')) {
+            setError('Password must be at least 6 characters long.');
+          } else if (error.message?.includes('rate limit')) {
+            setError('Too many attempts. Please wait a moment and try again.');
+          } else if (error.message?.includes('network')) {
+            setError('Network error. Please check your internet connection and try again.');
+          } else {
+            setError(error.message || 'Failed to create account. Please try again.');
+          }
+        } else {
+          setSuccess('Account created successfully! You can now sign in.');
+          // Switch to login mode after successful signup
+          setTimeout(() => {
+            setMode('login');
+            setSuccess(null);
+            setFormData(prev => ({ ...prev, password: '' })); // Clear password but keep email
+          }, 2000);
+        }
       }
     } catch (error: any) {
-      setError('Mock authentication - no real backend connected');
+      console.error('Form submission error:', error);
+      if (error.message?.includes('fetch')) {
+        setError('Unable to connect to the server. Please check your internet connection.');
+      } else {
+        setError(error.message || 'An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  // Format phone number as user types
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    
+    // Add formatting
+    if (value.startsWith('255')) {
+      value = '+' + value;
+    } else if (value.startsWith('0')) {
+      // Keep as is
+    } else if (value.length > 0) {
+      value = '0' + value;
+    }
+    
+    setFormData(prev => ({ ...prev, phoneNumber: value }));
+    setError(null);
+  };
+
+  // Handle name input (capitalize first letters)
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    setFormData(prev => ({ ...prev, fullName: value }));
+    setError(null);
   };
 
   if (!isOpen) return null;
@@ -146,7 +242,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-bold text-gray-900">
-            {mode === 'login' ? 'Sign In (Mock)' : 'Create Account (Mock)'}
+            {mode === 'login' ? 'Sign In' : 'Create Account'}
           </h2>
           <button
             onClick={onClose}
@@ -173,13 +269,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
-
-          {/* Mock Notice */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
-              <strong>Note:</strong> This is a mock authentication system. No real accounts are created.
-            </p>
-          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -305,7 +394,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   <span>{mode === 'login' ? 'Signing In...' : 'Creating Account...'}</span>
                 </>
               ) : (
-                <span>{mode === 'login' ? 'Sign In (Mock)' : 'Create Account (Mock)'}</span>
+                <span>{mode === 'login' ? 'Sign In' : 'Create Account'}</span>
               )}
             </button>
           </form>
