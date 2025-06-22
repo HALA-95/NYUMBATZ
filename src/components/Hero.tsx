@@ -126,13 +126,15 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   </label>
                   <div className="relative">
                     {/* Location Icon */}
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center">
+                      <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    </div>
                     
                     {/* Location Dropdown */}
                     <select
                       value={searchFilters.location}
                       onChange={(e) => setSearchFilters({ ...searchFilters, location: e.target.value })}
-                      className="pl-9 sm:pl-10 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
+                      className="pl-10 sm:pl-12 w-full p-2.5 sm:p-3 lg:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
                     >
                       <option value="">{t('hero:searchForm.location.allCities')}</option>
                       {tanzanianCities.map(city => (
@@ -142,7 +144,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                     
                     {/* Custom Dropdown Arrow */}
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -156,13 +158,15 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   </label>
                   <div className="relative">
                     {/* Property Type Icon */}
-                    <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center">
+                      <Home className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    </div>
                     
                     {/* Property Type Dropdown */}
                     <select
                       value={searchFilters.houseType}
                       onChange={(e) => setSearchFilters({ ...searchFilters, houseType: e.target.value })}
-                      className="pl-9 sm:pl-10 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
+                      className="pl-10 sm:pl-12 w-full p-2.5 sm:p-3 lg:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
                     >
                       <option value="">{t('hero:searchForm.propertyType.allTypes')}</option>
                       <option value="house">{t('hero:searchForm.propertyType.house')}</option>
@@ -174,7 +178,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                     
                     {/* Custom Dropdown Arrow */}
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -188,13 +192,15 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   </label>
                   <div className="relative">
                     {/* Bedrooms Icon */}
-                    <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center">
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    </div>
                     
                     {/* Bedrooms Dropdown */}
                     <select
                       value={searchFilters.bedrooms || ''}
                       onChange={(e) => setSearchFilters({ ...searchFilters, bedrooms: e.target.value ? parseInt(e.target.value) : null })}
-                      className="pl-9 sm:pl-10 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
+                      className="pl-10 sm:pl-12 w-full p-2.5 sm:p-3 lg:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base appearance-none bg-white"
                     >
                       <option value="">{t('hero:searchForm.bedrooms.any')}</option>
                       <option value="1">1+ {t('hero:searchForm.bedrooms.bedroom')}</option>
@@ -206,7 +212,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                     
                     {/* Custom Dropdown Arrow */}
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -240,12 +246,12 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                           priceRange: { ...searchFilters.priceRange, max: numericValue }
                         });
                       }}
-                      className="pl-10 sm:pl-12 w-full p-2.5 sm:p-3 lg:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base bg-white"
+                      className="pl-12 sm:pl-14 w-full p-2.5 sm:p-3 lg:p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 text-sm sm:text-base bg-white"
                     />
                     
                     {/* Quick Price Suggestions */}
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      <div className="p-2 grid grid-cols-2 gap-1">
+                      <div className="p-3 grid grid-cols-2 gap-2">
                         {[300000, 500000, 750000, 1000000, 1500000, 2000000, 2500000, 3000000].map((price) => (
                           <button
                             key={price}
@@ -254,7 +260,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                               ...searchFilters, 
                               priceRange: { ...searchFilters.priceRange, max: price }
                             })}
-                            className="px-2 py-1 text-xs text-gray-600 hover:bg-teal-50 hover:text-teal-700 rounded transition-colors"
+                            className="px-3 py-2 text-xs text-gray-600 hover:bg-teal-50 hover:text-teal-700 rounded-md transition-colors font-medium"
                           >
                             {price >= 1000000 ? `${price/1000000}M` : `${price/1000}K`}{price === 3000000 ? '+' : ''}
                           </button>
@@ -264,7 +270,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   </div>
                   
                   {/* Helper Text */}
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1.5 text-xs text-gray-500">
                     {t('hero:searchForm.price.helperText')}
                   </div>
                 </div>
@@ -273,14 +279,14 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
               {/* SEARCH BUTTON - Call-to-action with internationalization */}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-600 to-blue-600 text-white py-3 sm:py-4 px-4 sm:px-6 lg:px-8 rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-semibold text-sm sm:text-base lg:text-lg flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:transform active:translate-y-0"
+                className="w-full bg-gradient-to-r from-teal-600 to-blue-600 text-white py-3 sm:py-4 px-4 sm:px-6 lg:px-8 rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-semibold text-sm sm:text-base lg:text-lg flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:transform active:translate-y-0"
               >
                 <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>{t('hero:searchForm.searchButton')}</span>
               </button>
 
               {/* SEARCH TIPS - User guidance with internationalization */}
-              <div className="text-center pt-1 sm:pt-2">
+              <div className="text-center pt-2 sm:pt-3">
                 <p className="text-xs sm:text-sm text-gray-600 px-2">
                   {t('hero:searchForm.tips')}
                 </p>
